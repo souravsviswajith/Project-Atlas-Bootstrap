@@ -4,6 +4,9 @@
 >
 > Project Atlas Bootstrap is a production-quality, modular, configuration-driven Windows setup framework that provisions a fresh Windows 11 installation into a fully configured development environment with minimal manual intervention.
 
+> [!NOTE]
+> **Repository status.** This repository currently contains the React/TypeScript setup checklist in `src/` (phases 7–13). The PowerShell scripts, `config/atlas.yaml`, and `scripts/` described below are not committed here yet, so treat the installation, configuration, and repository-structure sections as the planned design.
+
 ---
 
 # ✨ Features
@@ -500,6 +503,21 @@ reports/
 
 ---
 
+# Web Checklist (Development)
+
+The checklist app in `src/` is a Vite, React, and TypeScript single-page app. It requires Node.js 20.19+ or 22.12+ (Vite 7).
+
+```bash
+npm ci
+npm run dev         # local dev server
+npm run typecheck   # tsc --noEmit
+npm run build       # production build, single-file output in dist/
+```
+
+CI runs typecheck and build on every pull request and on pushes to `main`.
+
+---
+
 # Contributing
 
 Contributions are welcome.
@@ -531,7 +549,7 @@ Future plans include:
 
 # License
 
-Choose an open-source license that fits your goals (MIT, Apache 2.0, or GPL).
+This project is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
 
 ---
 
