@@ -1,558 +1,102 @@
-# 🚀 Project Atlas Bootstrap
+# Project Atlas Bootstrap
 
-> **Automate your Windows developer workstation.**
->
-> Project Atlas Bootstrap is a production-quality, modular, configuration-driven Windows setup framework that provisions a fresh Windows 11 installation into a fully configured development environment with minimal manual intervention.
+Project Atlas is a React 19, TypeScript, and Vite application for expressing and previewing developer-workstation setup intent. The repository is evolving from a Windows-oriented checklist toward a cross-platform, declarative provisioning and verification system.
 
-> [!NOTE]
-> **Repository status.** This repository currently contains the React/TypeScript setup checklist in `src/` (phases 7–13). The PowerShell scripts, `config/atlas.yaml`, and `scripts/` described below are not committed here yet, so treat the installation, configuration, and repository-structure sections as the planned design.
+> **Current implementation status (2026-10-24): preview and checklist only.** This checkout has no native installer, detector, operating-system provider, or system mutation runtime. The planner does not install software. Catalog entries and package names are candidates, not proof of platform compatibility or support. A `planned` state means “included in this preview,” never installed, detected, or verified.
 
----
+## What exists
 
-# ✨ Features
+- Existing phases 7–13 checklist remains available as a user-controlled reference.
+- A typed, versioned capability catalog describes core languages and developer tools.
+- `atlas.yaml` version 1 parsing validates inputs, rejects unknown/stale capability IDs, and defaults to preview-only policy.
+- A deterministic dependency-first preview selects a candidate package-manager/provider by declared target OS and Linux distribution.
+- Plan steps distinguish planned, unavailable, and blocked. Requested versions and provider rationale are shown.
+- Explicit authorization and executor interfaces define a future native-runtime boundary; no executor is connected to the UI.
+- A structured evidence/report type separates execution status from verification status, redacts common secret patterns, and can hash-chain reports with SHA-256. This is tamper-evident, not immutable, and no machine execution report is currently produced.
+- Browser checklist progress is versioned, migrated from the old key, runtime-validated, and filtered against current checklist IDs. It records user checklist state only, not installed software state.
 
-* 🖥 Windows optimization
-* ⚡ Ultimate Performance configuration
-* 🛠 Developer Mode configuration
-* 🐧 WSL2 + Ubuntu setup
-* 🐳 Docker Desktop
-* ☸ Kubernetes tooling
-* ☁ AWS, Azure & Google Cloud SDKs
-* 📱 Flutter & Android Studio
-* ☕ Java 21
-* 🐍 Python + Miniconda + uv
-* 🟢 Node.js (nvm)
-* 📦 Git & GitHub CLI
-* 🔒 Windows security configuration
-* 📂 Automatic workspace creation
-* 📋 Verification reports
-* 📝 Detailed logging
-* 🔄 Safe to rerun
-* ⚙ Configuration-driven
-* 🧩 Modular architecture
+## Start and check
 
----
-
-# Project Goals
-
-Project Atlas Bootstrap aims to provide:
-
-* Reproducible workstation provisioning
-* Infrastructure-as-Code for Windows
-* Consistent developer environments
-* Fast onboarding
-* Easy maintenance
-* Extensible modules
-* Enterprise-grade reliability
-
----
-
-# Repository Structure
-
-```text
-Project-Atlas-Bootstrap/
-│
-├── Setup.ps1
-├── Update.ps1
-├── Verify.ps1
-├── Repair.ps1
-├── Cleanup.ps1
-├── Uninstall.ps1
-│
-├── config/
-│   ├── atlas.yaml
-│   └── packages.yaml
-│
-├── scripts/
-│   ├── 01-System.ps1
-│   ├── 02-Debloat.ps1
-│   ├── 03-Folders.ps1
-│   ├── 04-WindowsFeatures.ps1
-│   ├── 05-CoreApps.ps1
-│   ├── 06-WSL.ps1
-│   ├── 07-Git.ps1
-│   ├── 08-VSCode.ps1
-│   ├── 09-Languages.ps1
-│   ├── 10-Android.ps1
-│   ├── 11-Cloud.ps1
-│   ├── 12-MachineLearning.ps1
-│   ├── 13-Docker.ps1
-│   ├── 14-Verification.ps1
-│   └── 99-Reboot.ps1
-│
-├── configs/
-├── docs/
-├── assets/
-├── logs/
-└── reports/
-```
-
----
-
-# Installation
-
-## Prerequisites
-
-* Windows 11 (22H2 or newer recommended)
-* Administrator privileges
-* Internet connection
-* Winget installed
-* At least 40 GB free disk space
-
----
-
-## Clone Repository
+Node.js 22.12+ is recommended for the Vite 7 toolchain.
 
 ```bash
-git clone https://github.com/souravsviswajith/Project-Atlas-Bootstrap.git
-cd Project-Atlas-Bootstrap
+npm ci
+npm run dev
+npm run typecheck
+npm test
+npm run build
 ```
 
----
+The build is a static single-file frontend. It does not expose a local or remote provisioning service. No package installation on the host is performed by these checks.
 
-## Allow Script Execution
+## Declarative configuration
 
-Open PowerShell as Administrator.
-
-```powershell
-Set-ExecutionPolicy Bypass -Scope Process
-```
-
----
-
-## Start Installation
-
-```powershell
-.\Setup.ps1
-```
-
-The installer automatically:
-
-* Verifies system requirements
-* Configures Windows
-* Installs software
-* Applies settings
-* Generates reports
-
----
-
-# Installation Phases
-
-## Phase 1 — System Preparation
-
-* Administrator verification
-* Internet connectivity
-* Winget verification
-* PowerShell verification
-* Disk space verification
-* System restore point
-
----
-
-## Phase 2 — Windows Optimization
-
-Configure:
-
-* Ultimate Performance
-* Developer Mode
-* Explorer preferences
-* Taskbar
-* Clipboard History
-* Long Paths
-* Storage Sense
-
-Disable:
-
-* Consumer Experience
-* Suggested Apps
-* Welcome Experience
-* Tips
-* Advertising ID
-* Feedback requests
-* Automatic consumer apps
-* Copilot
-* Widgets
-* Chat
-* News Feed
-* Bing Search
-* Xbox Game Bar auto-start
-
----
-
-## Phase 3 — Workspace
-
-Creates:
-
-```text
-D:\
-├── Workspace
-├── Android
-├── Flutter
-├── Docker
-├── Kubernetes
-├── Datasets
-├── Downloads
-├── Games
-├── Scripts
-├── Backups
-└── ISO
-```
-
----
-
-## Phase 4 — Windows Features
-
-Enable:
-
-* WSL2
-* Hyper-V
-* Virtual Machine Platform
-* Windows Hypervisor Platform
-* Developer Mode
-
----
-
-## Phase 5 — Core Applications
-
-Installs:
-
-* PowerShell 7
-* Windows Terminal
-* Git
-* GitHub CLI
-* VS Code
-* PowerToys
-* Everything
-* 7-Zip
-* VLC
-* Notepad++
-* Obsidian
-
----
-
-## Phase 6 — WSL
-
-Installs:
-
-* Ubuntu
-
-Configures:
-
-* Default user
-* Package updates
-* Common utilities
-
----
-
-## Phase 7 — Git
-
-Configures:
-
-* Username
-* Email
-* SSH keys
-* GitHub authentication
-* Git Credential Manager
-* Git LFS
-* Default branch
-* Useful aliases
-
----
-
-## Phase 8 — VS Code
-
-Configures:
-
-* Settings Sync
-* Auto Save
-* Format on Save
-* Default Formatter
-* Integrated Terminal
-* UTF-8
-* Git settings
-
-> **Extensions are intentionally not installed automatically.**
-
----
-
-## Phase 9 — Programming Languages
-
-Installs:
-
-### Python
-
-* Python
-* Miniconda
-* uv
-* JupyterLab
-
-### Java
-
-* JDK 21 LTS
-
-### Node.js
-
-* nvm-windows
-* Latest LTS
-* npm
-* pnpm
-* Yarn
-
-### Flutter
-
-* Flutter SDK
-* Dart SDK
-
-### Go
-
-* Latest stable release
-
----
-
-## Phase 10 — Android Development
-
-Installs:
-
-* Android Studio
-
-Moves:
-
-* SDK → `D:\Android\SDK`
-* AVDs → `D:\Android\AVD`
-
-Runs:
-
-```text
-flutter doctor
-```
-
-Automatically fixes common configuration issues where possible.
-
----
-
-## Phase 11 — Cloud & DevOps
-
-Installs:
-
-* AWS CLI
-* AWS SAM CLI
-* AWS CDK
-* Azure CLI
-* Google Cloud CLI
-* Terraform
-* kubectl
-* Helm
-* kind
-* k9s
-
-Verifies every tool after installation.
-
----
-
-## Phase 12 — Machine Learning
-
-Installs:
-
-* Miniconda
-* JupyterLab
-
-Creates isolated Conda environments:
-
-* tensorflow
-* pytorch
-* opencv
-* llm
-
-CUDA Toolkit is installed only when:
-
-* An NVIDIA GPU is detected
-* CUDA installation is enabled in the configuration
-
----
-
-## Phase 13 — Docker Services
-
-Installs:
-
-* Docker Desktop
-
-Provides ready-to-use Docker Compose stacks for:
-
-* PostgreSQL
-* MySQL
-* MongoDB
-* Redis
-
-No database servers are installed directly on Windows.
-
----
-
-## Phase 14 — Verification
-
-Runs verification for every installed component.
-
-Generates:
-
-* HTML report
-* JSON report
-
----
-
-# Configuration
-
-Project Atlas is fully configuration-driven.
-
-All options are stored in:
-
-```text
-config/atlas.yaml
-```
+See [`config/atlas.example.yaml`](config/atlas.example.yaml) and [`config/atlas.schema.json`](config/atlas.schema.json). The current parser accepts schema version 1 only. Linux targets require a distro family (`debian`, `ubuntu`, `fedora`, `rhel`, or `arch`); architecture is `x64` or `arm64`. Each requested capability may specify an exact version, comparison range, or selection policy such as `lts`. Defaults are preview mode, explicit authorization required, and verification expected. Unsupported fields and capability IDs are errors, not silently ignored.
 
 Example:
 
 ```yaml
-windows:
-  optimize: true
-  developerMode: true
-
-languages:
-  python: true
-  java: true
-  flutter: true
-
-cloud:
-  aws: true
-  azure: true
-  gcp: true
-
-docker:
-  enabled: true
-
-machineLearning:
-  cuda: auto
+schemaVersion: 1
+target:
+  os: linux
+  arch: x64
+  distro: ubuntu
+capabilities:
+  - id: javascript.node
+    version: lts
+    optional: false
+  - id: javascript.typescript
+    optional: true
+policy:
+  mode: preview
+  requireAuthorization: true
+verification:
+  required: true
+reporting:
+  format: json
 ```
 
----
+The configuration describes desired state only. It is not an observed-state record. The UI currently builds an equivalent in-memory configuration; file upload/import and native CLI support are not implemented.
 
-# Logs
+## Capability inventory and honest status
 
-Installer logs are stored in:
+The registry includes Python/CPython, pip, venv, the Windows Python launcher/version selector, uv, Conda/Miniconda; Java/JDK, Maven and Gradle; Node.js, npm, Corepack/package-manager workflows and TypeScript; C/C++ compiler, CMake, Ninja and debugger; rustup and stable Rust/Cargo; Dart and Flutter; Kotlin; Go (carried forward from the checklist); PowerShell 7+ and Windows PowerShell 5.1; Bash/POSIX shell and Zsh; YAML/JSON/TOML tooling; Git/GitHub CLI; VS Code; Docker/Compose; kubectl/Helm; Terraform; AWS, Azure and Google Cloud CLIs (Azure retained from the old checklist), AWS SAM/CDK; Android Studio/SDK; MySQL/PostgreSQL clients and optional MySQL, PostgreSQL, MongoDB and Redis-compatible local service capabilities.
+
+**Every registry entry is currently `catalogued-plan-only`.** It contains detection/version-command metadata and a verification description for a future provider, but Atlas does not execute those checks. Provider package names are illustrative candidates and require package-identity, distro/version, architecture, licensing, privilege, and install-behavior validation before implementation. Linux resolution distinguishes apt, dnf, and pacman. A chosen `x64`/`arm64` value is intent only: the planner does not filter candidates against an architecture support matrix. Windows, macOS, and Linux have different runtime/service requirements; no OS is claimed to have been integration-tested.
+
+## Architecture boundary
 
 ```text
-logs/
+React UI → validated Atlas config → typed capability registry
+         → dependency planner → provider/OS candidate preview
+         → [future authorization boundary]
+         → [future native Rust runtime and platform adapters]
+         → observed state, verification, structured evidence
 ```
 
-Reports are generated in:
+The browser UI never executes shell commands. The existing checklist displays selected command references for human review, but marking an item done changes only local browser checklist progress. No frontend-only behavior is represented as successful provisioning. Windows PowerShell, CMD, WSL Bash, Conda, and container contexts must be modeled as distinct execution environments by any future provider. In particular, Windows `setx` changes future processes, not the current shell.
 
-```text
-reports/
-```
+Execution implementation is intentionally deferred until providers can be safely validated and tested on real platform runners. It must not bypass OS policy, silently elevate privileges, expose database services, or log secrets. Docker database services require explicit local-only port/volume/security configuration and user-managed credentials.
 
----
+## Research record and compatibility
 
-# Updating
+Official sources, date checked, and implementation implications are in [`docs/RESEARCH.md`](docs/RESEARCH.md). The registry adopts version-selection policies rather than pinning a guessed “latest” release. Vendor compatibility changes over time; provider selection must re-check the official support matrix at execution time. As of the recorded research, Node.js production guidance favors Active/Maintenance LTS, PowerShell 7 is side-by-side with inbox Windows PowerShell, Flutter setup has OS-specific prerequisites, and Windows/Mac/Linux container or Android virtualization requirements differ. Those facts explain why registry names are not equivalent to support claims.
 
-```powershell
-.\Update.ps1
-```
+## Verification status
 
----
+- Locally available checks: typecheck, deterministic unit tests, and static Vite build.
+- Mocked: provider/executor authorization boundary and evidence generation.
+- Not run: any real installation; native executable detection; Windows 11, macOS, Fedora/RHEL, Arch, or cross-platform integration tests; accessibility automation; OS-specific provider execution.
+- CI runs Node checks on Ubuntu only. This is not evidence of other-OS support.
 
-# Verification
+## Existing checklist
 
-```powershell
-.\Verify.ps1
-```
+The checklist still represents historical phases 7–13: Git, VS Code, programming languages, Android, cloud/DevOps, machine learning, and databases. Some instructions remain Windows-specific and require personal judgement. Review commands and vendor documentation before manually running them. Never use checklist completion as evidence that a tool was installed or passed verification.
 
----
+## Next high-value iteration
 
-# Repair
+Implement and test a Rust CLI/native-runtime skeleton for configuration loading, platform fact detection, capability detection, plan serialization, authorization, and structured reports. Then deliver one narrowly scoped, non-privileged package provider per OS behind an injected provider interface, with mocks and Windows/macOS/Linux CI. Do not wire execution into the UI until authorization, cancellation, partial-failure recovery, redaction, and real installation verification are in place.
 
-```powershell
-.\Repair.ps1
-```
+## License
 
----
-
-# Cleanup
-
-```powershell
-.\Cleanup.ps1
-```
-
----
-
-# Uninstall
-
-```powershell
-.\Uninstall.ps1
-```
-
----
-
-# Design Principles
-
-* Modular
-* Idempotent
-* Configuration-driven
-* Safe to rerun
-* Enterprise-ready
-* Open-source friendly
-* Easy to maintain
-* Well documented
-
----
-
-# Web Checklist (Development)
-
-The checklist app in `src/` is a Vite, React, and TypeScript single-page app. It requires Node.js 20.19+ or 22.12+ (Vite 7).
-
-```bash
-npm ci
-npm run dev         # local dev server
-npm run typecheck   # tsc --noEmit
-npm run build       # production build, single-file output in dist/
-```
-
-CI runs typecheck and build on every pull request and on pushes to `main`.
-
----
-
-# Contributing
-
-Contributions are welcome.
-
-Please:
-
-1. Fork the repository.
-2. Create a feature branch.
-3. Commit your changes.
-4. Submit a Pull Request.
-
----
-
-# Roadmap
-
-Future plans include:
-
-* Atlas CLI (`atlas install`, `atlas update`, `atlas verify`)
-* GUI dashboard
-* Plugin system
-* Package profiles
-* Offline installer
-* Chocolatey/Scoop support
-* CI/CD validation
-* Automated testing
-* Cross-machine synchronization
-
----
-
-# License
-
-This project is licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE).
-
----
-
-# Disclaimer
-
-Project Atlas Bootstrap modifies Windows configuration, installs software, and changes system settings. Review the configuration before running it in production environments. While the project is designed to be safe and idempotent, you should always maintain backups of important data before provisioning or modifying a system.
+Apache License 2.0. See [LICENSE](LICENSE).

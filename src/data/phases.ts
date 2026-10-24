@@ -228,7 +228,7 @@ export const phases: Phase[] = [
           {
             id: "py-uv",
             label: "Install uv (fast package manager)",
-            commands: ['powershell -c "irm https://astral.sh/uv/install.ps1 | iex"', "uv --version"],
+            note: "Install from the official uv documentation and review the platform-specific method before running it. Verify with uv --version.",
           },
           {
             id: "py-jupyter",
@@ -313,7 +313,7 @@ export const phases: Phase[] = [
           {
             id: "android-sdk-move",
             label: "Relocate Android SDK to D:\\Android\\Sdk",
-            note: "Android Studio → Settings → Languages & Frameworks → Android SDK → change SDK location, then move the folder.",
+            note: "Android Studio → Settings → Languages & Frameworks → Android SDK → change SDK location, then move the folder. setx updates future processes only; open a new terminal to see changed environment variables (it does not modify the current shell).",
             commands: [
               'setx ANDROID_HOME "D:\\Android\\Sdk"',
               'setx ANDROID_SDK_ROOT "D:\\Android\\Sdk"',
@@ -322,6 +322,7 @@ export const phases: Phase[] = [
           {
             id: "android-avd-move",
             label: "Relocate AVDs to D:\\Android\\avd",
+            note: "setx changes the persistent user value for future processes; open a new terminal. It does not update the current process environment.",
             commands: ['setx ANDROID_AVD_HOME "D:\\Android\\avd"'],
           },
         ],
@@ -500,26 +501,22 @@ export const phases: Phase[] = [
           {
             id: "db-postgres",
             label: "PostgreSQL",
-            commands: [
-              "docker run --name postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:16",
-            ],
+            note: "Optional local service. Prefer a project-owned Compose file, keep credentials in an untracked secret source, bind only to loopback unless remote access is intentional, and review volumes/ports before starting.",
           },
           {
             id: "db-mongo",
             label: "MongoDB",
-            commands: ["docker run --name mongodb -p 27017:27017 -d mongo:7"],
+            note: "Optional local service. Review authentication, loopback-only binding, ports, volumes, and the image version before starting a local instance.",
           },
           {
             id: "db-redis",
             label: "Redis",
-            commands: ["docker run --name redis -p 6379:6379 -d redis:7"],
+            note: "Optional local service. Do not expose an unauthenticated Redis-compatible service to the network; review loopback binding and image version before starting.",
           },
           {
             id: "db-mysql",
             label: "MySQL (when needed)",
-            commands: [
-              "docker run --name mysql -e MYSQL_ROOT_PASSWORD=root -p 3306:3306 -d mysql:8",
-            ],
+            note: "Optional local service. Prefer a project-owned Compose file, keep credentials in an untracked secret source, bind only to loopback unless remote access is intentional, and review volumes/ports before starting.",
           },
         ],
       },
