@@ -104,7 +104,7 @@ Project-Atlas-Bootstrap/
 ## Clone Repository
 
 ```bash
-git clone https://github.com/<your-username>/Project-Atlas-Bootstrap.git
+git clone https://github.com/souravsviswajith/Project-Atlas-Bootstrap.git
 cd Project-Atlas-Bootstrap
 ```
 
