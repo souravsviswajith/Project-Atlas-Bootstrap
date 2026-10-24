@@ -1,0 +1,63 @@
+# Atlas declarative intent, schema version 1.
+# Parsing/validation and deterministic preview are implemented. This file does not install software.
+schemaVersion: 1
+
+target:
+  os: windows # windows | macos | linux
+  osVersion: "11" # optional target OS release constraint (not yet checked against a live host)
+  arch: x64 # x64 | arm64
+  # Required only for Linux: debian | ubuntu | fedora | rhel | arch
+  # distro: ubuntu
+
+capabilities:
+  - id: python.cpython
+    version: "3.12"
+    optional: false
+  - id: python.venv
+    optional: false
+  - id: python.uv
+    optional: true
+  - id: java.jdk
+    version: "21"
+    optional: false
+  - id: javascript.node
+    version: "lts"
+    optional: false
+  - id: javascript.typescript
+    optional: false
+  - id: cpp.cmake
+    optional: true
+  - id: rust.stable
+    optional: true
+  - id: flutter.sdk
+    optional: true
+  - id: git.git
+    optional: false
+  - id: github.cli
+    optional: true
+  - id: editor.vscode
+    optional: true
+  - id: container.docker
+    optional: true
+  - id: kubernetes.kubectl
+    optional: true
+  - id: iac.terraform
+    optional: true
+  - id: cloud.aws-cli
+    optional: true
+  - id: cloud.gcloud
+    optional: true
+  - id: mobile.android-studio
+    optional: true
+  - id: database.postgresql-client
+    optional: true
+
+policy:
+  mode: preview
+  requireAuthorization: true
+
+verification:
+  required: true
+
+reporting:
+  format: json

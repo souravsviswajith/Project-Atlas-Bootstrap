@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/souravsviswajith/Project-Atlas-Bootstrap/main/config/atlas.schema.json",
+  "title": "Project Atlas configuration",
+  "description": "Desired workstation state. Validated by Atlas; not evidence that a tool is installed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "target", "capabilities"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "target": {
+      "type": "object", "additionalProperties": false, "required": ["os", "arch"],
+      "properties": {
+        "os": { "enum": ["windows", "macos", "linux"] },
+        "arch": { "enum": ["x64", "arm64"] },
+        "distro": { "enum": ["debian", "ubuntu", "fedora", "rhel", "arch"] },
+        "osVersion": { "type": "string", "pattern": "^\\d+(?:\\.\\d+){0,2}$" },
+        "distroVersion": { "type": "string", "pattern": "^\\d+(?:\\.\\d+){0,2}$" }
+      },
+      "allOf": [{
+        "if": { "properties": { "os": { "const": "linux" } } },
+        "then": { "required": ["distro"] },
+        "else": { "not": { "anyOf": [{ "required": ["distro"] }, { "required": ["distroVersion"] }] } }
+      }]
+    },
+    "capabilities": {
+      "type": "array", "uniqueItems": true,
+      "items": {
+        "type": "object", "additionalProperties": false, "required": ["id"],
+        "properties": {
+          "id": { "type": "string", "pattern": "^[a-z][a-z0-9.-]+$" },
+          "version": { "type": "string", "pattern": "^(stable|lts|current|latest|system|v?\\d+(?:\\.\\d+){0,2}(?:[-+][0-9A-Za-z.-]+)?|(?:>=|>|<=|<|=|\\^|~)\\s*v?\\d+(?:\\.\\d+){0,2}(?:\\s+(?:>=|>|<=|<|=|\\^|~)\\s*v?\\d+(?:\\.\\d+){0,2})*)$" },
+          "optional": { "type": "boolean", "default": false }
+        }
+      }
+    },
+    "policy": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "mode": { "const": "preview", "default": "preview" }, "requireAuthorization": { "const": true, "default": true } }
+    },
+    "verification": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "required": { "type": "boolean", "default": true } }
+    },
+    "reporting": {
+      "type": "object", "additionalProperties": false,
+      "properties": { "format": { "enum": ["json", "json-and-html"], "default": "json" } }
+    }
+  }
+}
