@@ -95,8 +95,11 @@ function parseRange(range: string): Comparator[] | undefined {
       if (componentCount === 1) { upper.major += 1; upper.minor = 0; }
       else upper.minor += 1;
       upper.patch = 0;
-      if (operator === ">") comparators.push({ operator: ">=", version: upper });
-      else {
+      if (operator === ">") {
+        comparators.push({ operator: ">=", version: upper });
+      } else if (operator === "<=") {
+        comparators.push({ operator: "<", version: upper });
+      } else {
         comparators.push({ operator: ">=", version });
         comparators.push({ operator: "<", version: upper });
       }
@@ -218,13 +221,13 @@ export function evaluateCompatibility(
       const constraint = capability.dependencyConstraints?.[dependencyId];
       if (!constraint) continue;
       const dependencyRequest = requestById.get(dependencyId);
-      if (!dependencyRequest?.version) {
+      if (!dependencyRequest?.version || !parseVersion(dependencyRequest.version)) {
         addIssue({
           code: "version-unresolved",
           severity: "warning",
           capabilityIds: [id, dependencyId],
-          message: `${capability.name} requires ${dependencyId} ${constraint}, but no exact dependency version is pinned.`,
-          remediation: "Pin a compatible dependency version after a provider supplies verified version candidates.",
+          message: `${capability.name} requires ${dependencyId} ${constraint}, but the requested value is not a resolved exact SemVer version.`,
+          remediation: "Resolve the requested channel/range to an exact provider version before authorization.",
         });
       } else if (!satisfiesVersion(dependencyRequest.version, constraint)) {
         addIssue({
