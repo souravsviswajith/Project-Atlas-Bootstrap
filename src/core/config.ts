@@ -95,7 +95,7 @@ export function parseAtlasConfig(source: string): AtlasConfig {
     rejectUnknownKeys(host, ["os", "arch", "osVersion"], "target.host", issues);
     if (!TARGET_OS.includes(host.os as TargetOS)) issues.push("target.host.os: expected windows, macos, or linux");
     if (!ARCHES.includes(host.arch as Architecture)) issues.push("target.host.arch: expected x86, x64, arm32, or arm64");
-    if (host.osVersion !== undefined && (typeof host.osVersion !== "string" || !/^\\d+(?:\\.\\d+){0,2}$/.test(host.osVersion))) issues.push("target.host.osVersion: expected a numeric release");
+    if (host.osVersion !== undefined && (typeof host.osVersion !== "string" || !/^\d+(?:\.\d+){0,2}$/.test(host.osVersion))) issues.push("target.host.osVersion: expected a numeric release");
   }
   if (executionEnvironment === "wsl") {
     if (target.os !== "linux") issues.push("target.executionEnvironment: wsl requires a Linux guest target");
