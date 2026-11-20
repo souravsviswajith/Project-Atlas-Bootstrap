@@ -9,6 +9,7 @@ export class PlanningError extends Error {
 }
 
 function providerFor(capability: Capability, target: TargetPlatform): ProviderOption | undefined {
+  // Provider selection follows the command execution OS. WSL therefore uses Linux distro providers.
   const options = capability.platforms[target.os] ?? [];
   if (target.os !== "linux") return options[0];
   const manager = target.distro === "debian" || target.distro === "ubuntu" ? "apt"
@@ -68,7 +69,7 @@ export function createPlan(config: AtlasConfig, now: Date = new Date(), registry
           reason: `Blocked because prerequisite '${unavailableDependency}' is unavailable.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
       : !provider
         ? { capabilityId: id, name: capability.name, state: "unavailable", requestedVersion: requested?.version,
-            reason: `No candidate provider is catalogued for ${config.target.os}${config.target.distro ? ` (${config.target.distro})` : ""}.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
+            reason: `No candidate provider is catalogued for ${config.target.os}${config.target.distro ? ` (${config.target.distro})` : ""}${config.target.environment === "wsl" ? ` (WSL ${config.target.wslVersion} on Windows)` : ""}.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
         : { capabilityId: id, name: capability.name, state: "planned", provider, requestedVersion: requested?.version,
             reason: requested ? "Explicitly requested; prerequisites are included first." : `Required prerequisite of ${capability.name}.`, dependencies: [...capability.dependencies], optional, verification: capability.verification };
     steps.push(step);
