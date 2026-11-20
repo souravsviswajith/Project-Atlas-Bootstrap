@@ -31,6 +31,10 @@ describe("semantic version constraints", () => {
     expect(satisfiesVersion("21.0.0", ">=20 <21")).toBe(false);
     expect(satisfiesVersion("20.11.1", ">= 20 < 21")).toBe(true);
     expect(satisfiesVersion("v20.11", "20.11.0")).toBe(true);
+    expect(satisfiesVersion("20.11.1", "20")).toBe(true);
+    expect(satisfiesVersion("21.0.0", "20")).toBe(false);
+    expect(satisfiesVersion("20.11.1", "20.11")).toBe(true);
+    expect(satisfiesVersion("20.12.0", "20.11")).toBe(false);
   });
 
   it("implements caret and tilde upper bounds", () => {
