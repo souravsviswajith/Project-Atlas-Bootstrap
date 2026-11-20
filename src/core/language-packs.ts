@@ -11,7 +11,6 @@ const extraCapabilities: Capability[] = [
     id: "c.compiler",
     name: "C compiler toolchain",
     category: "toolchain",
-    pack: "core-languages",
     language: "C",
     description: "Native C compiler and linker. Select MSVC, Clang, or GCC according to the target OS, architecture, ABI, and project requirements.",
     platforms: {
@@ -101,7 +100,6 @@ const extraCapabilities: Capability[] = [
     id: "hardware.assembly",
     name: "Assembly toolchain",
     category: "hardware",
-    pack: "hardware",
     language: "Assembly",
     description: "NASM assembler for x86-family source and x64 targets. Syntax and object format must be selected explicitly; this entry does not imply ARM or 16-bit DOS support.",
     platforms: {
@@ -145,53 +143,10 @@ const extraCapabilities: Capability[] = [
   },
 ];
 
-const coreLanguageIds = new Set([
-  "c.compiler",
-  "cpp.compiler",
-  "cpp.cmake",
-  "cpp.ninja",
-  "java.jdk",
-  "java.maven",
-  "java.gradle",
-  "python.cpython",
-  "python.pip",
-  "python.venv",
-  "python.uv",
-  "python.conda",
-  "rust.rustup",
-  "rust.stable",
-]);
-
-/** Adds curated pack membership to existing catalogue entries and appends missing language/hardware capabilities. */
-export function composeLanguagePacks(existing: Capability[]): Capability[] {
-  const tagged = existing.map((capability) =>
-    coreLanguageIds.has(capability.id) && !capability.pack
-      ? { ...capability, pack: "core-languages" as const }
-      : capability,
-  );
-  const existingIds = new Set(tagged.map((capability) => capability.id));
-  return [...tagged, ...extraCapabilities.filter((capability) => !existingIds.has(capability.id))];
+/** Appends additional capabilities to the inventory without grouping them into an install bundle. */
+export function composeCapabilityInventory(existing: Capability[]): Capability[] {
+  const existingIds = new Set(existing.map((capability) => capability.id));
+  return [...existing, ...extraCapabilities.filter((capability) => !existingIds.has(capability.id))];
 }
 
-export const CORE_LANGUAGE_PACK = [
-  "c.compiler",
-  "cpp.compiler",
-  "cpp.cmake",
-  "cpp.ninja",
-  "java.jdk",
-  "java.maven",
-  "java.gradle",
-  "csharp.dotnet",
-  "sql.fluff",
-  "python.cpython",
-  "python.pip",
-  "python.venv",
-  "python.uv",
-  "python.conda",
-  "rust.rustup",
-  "rust.stable",
-  "php.runtime",
-  "php.composer",
-] as const;
-
-export const HARDWARE_PACK = ["hardware.assembly", "hardware.assembly.arm64"] as const;
+export const HARDWARE_CAPABILITY_IDS = ["hardware.assembly", "hardware.assembly.arm64"] as const;
