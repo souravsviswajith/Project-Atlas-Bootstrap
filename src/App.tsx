@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { phases, totalItemCount, type Phase } from "./data/phases";
 import { capabilityRegistry } from "./core/registry";
+import { ARTIFACT_PROFILES, type ArtifactProfileId, getArtifactProfile } from "./core/artifacts";
+import { ATLAS_CORE_BUILD_PROFILE } from "./core/build-profile";
 import { createPlan } from "./core/planner";
 import type { Architecture, AtlasPlan, LinuxDistro, TargetOS } from "./core/types";
 import { useProgress } from "./hooks/useProgress";
@@ -30,7 +32,8 @@ export default function App() {
   const [targetOs, setTargetOs] = useState<TargetOS>("windows");
   const [targetArch, setTargetArch] = useState<Architecture>("x64");
   const [linuxDistro, setLinuxDistro] = useState<LinuxDistro>("ubuntu");
-  const [selectedCapabilities, setSelectedCapabilities] = useState<string[]>(["python.cpython", "javascript.node", "git.git"]);
+  const [selectedCapabilities, setSelectedCapabilities] = useState<string[]>([]);
+  const [artifactProfileId, setArtifactProfileId] = useState<ArtifactProfileId>("rust-cli");
   const [previewPlan, setPreviewPlan] = useState<AtlasPlan | null>(null);
 
   const activePhase = useMemo(() => phases.find((p) => p.id === activeId)!, [activeId]);
@@ -79,9 +82,9 @@ export default function App() {
       : [...selected, id]);
   };
 
-  const addPack = (pack: "core-languages" | "hardware") => {
-    const packIds = capabilityRegistry.filter((capability) => capability.pack === pack).map((capability) => capability.id);
-    setSelectedCapabilities((selected) => [...new Set([...selected, ...packIds])]);
+  const addArtifactRequirements = () => {
+    const profile = getArtifactProfile(artifactProfileId);
+    setSelectedCapabilities((selected) => [...new Set([...selected, ...profile.capabilityIds])]);
   };
 
   return (
@@ -197,6 +200,17 @@ export default function App() {
               <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-800/70 bg-amber-950/40 px-3 py-1 text-xs font-medium text-amber-300"><Info size={13} /> No installations run</span>
             </div>
 
+            <div className="mt-5 rounded-xl border border-indigo-900/60 bg-indigo-950/20 p-4">
+              <p className="text-xs font-semibold uppercase tracking-wider text-indigo-300">Atlas application build stack · not a user install pack</p>
+              <div className="mt-2 grid gap-3 sm:grid-cols-3">
+                {Object.values(ATLAS_CORE_BUILD_PROFILE).map((component) => <div key={component.role}>
+                  <p className="text-sm font-semibold text-slate-100">{component.technology}</p>
+                  <p className="mt-1 text-xs text-slate-400">{component.purpose}</p>
+                </div>)}
+              </div>
+              <p className="mt-2 text-[11px] text-slate-500">Rust native core and SQL persistence are target architecture; the current checked-in application is still a TypeScript/Vite frontend. No global SDKs are installed by selecting this profile.</p>
+            </div>
+
             <div className="mt-5 grid gap-3 sm:grid-cols-3">
               <label className="text-xs font-medium text-slate-400">Target operating system
                 <select value={targetOs} onChange={(event) => setTargetOs(event.target.value as TargetOS)} className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus-visible:outline-2 focus-visible:outline-indigo-400">
@@ -217,15 +231,19 @@ export default function App() {
 
             <details className="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
               <summary className="cursor-pointer text-sm font-medium text-slate-200 focus-visible:outline-2 focus-visible:outline-indigo-400">Select from {capabilityRegistry.length} catalogued capabilities <span className="ml-2 text-xs text-slate-500">{selectedCapabilities.length} selected</span></summary>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <button type="button" onClick={() => addPack("core-languages")} className="rounded-md border border-indigo-800 px-3 py-1.5 text-xs font-medium text-indigo-300 hover:bg-indigo-950/60">Add Core Languages pack</button>
-                <button type="button" onClick={() => addPack("hardware")} className="rounded-md border border-amber-800 px-3 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-950/40">Add Hardware layer</button>
+              <div className="mt-3 grid gap-2 sm:grid-cols-[minmax(0,1fr)_auto]">
+                <label className="text-xs font-medium text-slate-400">Artifact profile
+                  <select value={artifactProfileId} onChange={(event) => setArtifactProfileId(event.target.value as ArtifactProfileId)} className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white">
+                    {ARTIFACT_PROFILES.map((profile) => <option key={profile.id} value={profile.id}>{profile.label}</option>)}
+                  </select>
+                </label>
+                <button type="button" onClick={addArtifactRequirements} className="self-end rounded-md border border-indigo-800 px-3 py-2 text-xs font-medium text-indigo-300 hover:bg-indigo-950/60">Add artifact requirements</button>
               </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {capabilityRegistry.map((capability) => (
                   <label key={capability.id} className="flex min-w-0 items-start gap-2 rounded-lg p-2 text-xs text-slate-300 hover:bg-slate-900">
                     <input type="checkbox" checked={selectedCapabilities.includes(capability.id)} onChange={() => toggleCapability(capability.id)} className="mt-0.5 accent-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-400" />
-                    <span><span className="block font-medium">{capability.name}</span><span className="break-all text-[10px] text-slate-500">{capability.id}</span>{capability.pack && <span className="mt-1 inline-block rounded bg-indigo-950/70 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-indigo-300">{capability.pack === "core-languages" ? "Core Languages" : "Hardware Layer"}</span>}</span>
+                    <span><span className="block font-medium">{capability.name}</span><span className="break-all text-[10px] text-slate-500">{capability.id}</span>{capability.category === "hardware" && <span className="mt-1 inline-block rounded bg-amber-950/70 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-amber-300">Hardware</span>}</span>
                   </label>
                 ))}
               </div>
