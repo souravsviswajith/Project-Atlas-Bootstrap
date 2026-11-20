@@ -28,7 +28,7 @@ describe("Atlas configuration", () => {
   it("accepts explicit WSL 1 and WSL 2 targets and defaults existing Linux configs to native", () => {
     const wsl1 = parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\n  environment: wsl\n  hostOS: windows\n  wslVersion: 1\ncapabilities: []\n");
     const wsl2 = parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\n  environment: wsl\n  hostOS: windows\n  wslVersion: 2\ncapabilities: []\n");
-    const native = parseAtlasConfig(yaml(""));
+    const native = parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\ncapabilities: []\n");
     expect(wsl1.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 1 });
     expect(wsl2.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 2 });
     expect(native.target.environment).toBeUndefined();
