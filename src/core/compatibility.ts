@@ -52,10 +52,8 @@ function compareVersions(left: ParsedVersion, right: ParsedVersion): number {
     const aNumeric = /^\d+$/.test(a);
     const bNumeric = /^\d+$/.test(b);
     if (aNumeric && bNumeric) {
-      const normalizedA = a.replace(/^0+(?=\\d)/, "");
-      const normalizedB = b.replace(/^0+(?=\\d)/, "");
-      if (normalizedA.length !== normalizedB.length) return normalizedA.length < normalizedB.length ? -1 : 1;
-      return normalizedA < normalizedB ? -1 : 1;
+      if (a.length !== b.length) return a.length < b.length ? -1 : 1;
+      return a < b ? -1 : 1;
     }
     if (aNumeric !== bNumeric) return aNumeric ? -1 : 1;
     return a < b ? -1 : 1;
