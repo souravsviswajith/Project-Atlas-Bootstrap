@@ -30,6 +30,22 @@ describe("artifact-driven toolchain profiles", () => {
     expect(getArtifactProfile("assembly-x64").capabilityIds).toEqual(["hardware.assembly"]);
   });
 
+  it("fails closed for PHP ARM64 until provider support is OS-specific", () => {
+    const plan = createPlan({
+      schemaVersion: 1,
+      target: { os: "windows", osVersion: "11", arch: "arm64" },
+      capabilities: [{ id: "php.runtime", optional: false }],
+      policy: { mode: "preview", requireAuthorization: true },
+      verification: { required: true },
+      reporting: { format: "json" },
+    });
+    expect(plan.steps.find((step) => step.capabilityId === "php.runtime")?.state).toBe("blocked");
+    expect(plan.compatibilityIssues).toContainEqual(expect.objectContaining({
+      code: "unsupported-architecture",
+      severity: "error",
+    }));
+  });
+
   it("keeps hardware assembly variants separate and target constrained", () => {
     const x64 = capabilityRegistry.find((item) => item.id === "hardware.assembly");
     const arm64 = capabilityRegistry.find((item) => item.id === "hardware.assembly.arm64");
