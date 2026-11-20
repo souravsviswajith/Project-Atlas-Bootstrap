@@ -62,7 +62,7 @@ function compareVersions(left: ParsedVersion, right: ParsedVersion): number {
 
 function upperBound(operator: "^" | "~", version: ParsedVersion, source: string): ParsedVersion {
   const result: ParsedVersion = { major: version.major, minor: version.minor, patch: version.patch, prerelease: [] };
-  const componentCount = source.replace(/^v/, "").split(/[.+-]/)[0].split(".").length;
+  const componentCount = source.replace(/^v/, "").split(/[+-]/)[0].split(".").length;
   if (operator === "~") {
     if (componentCount === 1) { result.major += 1; result.minor = 0; }
     else result.minor += 1;
