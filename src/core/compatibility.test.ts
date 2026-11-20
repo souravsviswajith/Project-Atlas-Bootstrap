@@ -161,6 +161,20 @@ describe("package compatibility planning", () => {
     expect(plan.steps.every((step) => step.state === "blocked")).toBe(true);
   });
 
+  it("authorizes a verified provider from the same injected registry used for planning", () => {
+    const verified = makeCapability("test.verified", { implementation: "verified-provider" });
+    const registry = [verified];
+    const plan = createPlan(makeConfig([{ id: verified.id, optional: false }]), new Date(), registry);
+    const request = authorizePlan(
+      plan,
+      { approved: true, confirmationText: "APPLY ATLAS PLAN" },
+      new Date("2026-11-21T00:00:00.000Z"),
+      registry,
+    );
+    expect(request.mode).toBe("apply");
+    expect(request.steps.map((step) => step.capabilityId)).toEqual([verified.id]);
+  });
+
   it("enforces declared architecture support", () => {
     const armOnly = makeCapability("test.arm-only", { supportedArchitectures: ["arm64"] });
     const plan = createPlan(makeConfig([{ id: armOnly.id, optional: false }]), new Date(), [armOnly]);
