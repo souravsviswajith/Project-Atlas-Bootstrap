@@ -1,33 +1,41 @@
 # Project Atlas Bootstrap — AI Agent Instructions
-# This is a project-level instruction file for AI coding agents.
-# It is a human-readable YAML contract, not a universal executable agent format.
-# If an agent platform requires a specific schema, adapt this file without losing
-# the project rules below.
+# Portable project contract. Adapt to a target agent's native format when needed.
+# This file describes both the intended workstation inventory and the verified
+# implementation status. An inventory entry is NOT proof that Atlas installs it.
 
-schema_version: "1.0"
+schema_version: "1.1"
 
 project:
   name: "Project Atlas Bootstrap"
   repository: "souravsviswajith/Project-Atlas-Bootstrap"
   purpose: >
-    Help users prepare consistent developer workstations through clear,
-    guided setup instructions and, as the project evolves, safe and
-    reproducible provisioning.
-  supported_targets:
+    Prepare consistent developer workstations through a guided, configurable,
+    dependency-aware setup process, with safe and reproducible provisioning
+    as the long-term goal.
+  primary_initial_target:
+    os: windows
+    version: "Windows 11 (22H2 or newer)"
+    architecture: "x64; support arm64 only where each package supports it"
+  future_supported_targets:
     - windows
     - macos
     - linux
+  scope_note: >
+    Windows 11 is the detailed initial provisioning baseline. macOS and Linux
+    are part of the cross-platform product direction, but each OS needs its
+    own researched package mapping, prerequisites, commands, and tests.
+    Never copy Windows installation commands to another operating system.
 
 agent:
-  role: "Repository-aware software engineering and documentation agent"
+  role: "Repository-aware software engineering, provisioning research, and documentation agent"
   mission: >
-    Understand the existing project before making changes. Improve the
-    implementation without breaking established decisions, user workflows,
-    documentation clarity, or project boundaries.
+    Maintain and extend Atlas without losing its established workstation
+    inventory, safety model, architecture, user workflows, or beginner-first
+    documentation. Inspect the repository before making changes.
   priorities:
     - correctness
     - user safety
-    - preservation of existing behavior
+    - preservation of established decisions
     - maintainability
     - simplicity
     - accessibility
@@ -36,40 +44,428 @@ agent:
 project_context:
   current_implementation:
     frontend:
-      - React 19
-      - TypeScript
-      - Vite 7
-      - Tailwind CSS 4
+      - "React 19"
+      - "TypeScript 5.9"
+      - "Vite 7"
+      - "Tailwind CSS 4"
     package_manager: "npm"
     commands:
+      install_project_dependencies: "npm ci"
       start: "npm run dev"
       typecheck: "npm run typecheck"
       test: "npm test"
       build: "npm run build"
+      preview: "npm run preview"
   current_status:
-    - "The repository contains a web-based setup checklist and setup-plan preview."
+    - "The repository currently contains a browser-based setup checklist and setup-plan preview."
     - "Checklist progress is stored in the browser."
     - "The capability catalogue and planner describe setup intent and preview plans."
-    - "The current planner is preview-only."
-    - "There is no native installer, live host detector, operating-system provider, or system-mutation runtime."
-    - "The example YAML configuration is documentation/example input; do not claim the app imports it unless that feature is verified in the source."
-  important_distinctions:
+    - "The planner is preview-only."
+    - "There is no verified native installer, live host detector, OS provider, or host system-mutation runtime."
+    - "The example YAML configuration is example input; do not claim the web app imports it unless source code proves that feature."
+  critical_truths:
+    - "Atlas currently does not install, update, repair, configure, or uninstall workstation software."
     - "A requested capability is not proof that software is installed."
-    - "A checklist item marked complete is a user assertion, not a machine verification."
+    - "A checked checklist item is a user assertion, not machine verification."
     - "A planned provider is not an implemented installer."
-    - "A preview plan must never be described as an executed plan."
-    - "Research findings and package catalogue entries are not proof of runtime support."
+    - "A preview plan is not an executed plan."
+    - "The catalogue below is the intended provisioning scope, not a list of currently working installers."
+
+# AUTHORITATIVE INTENDED WORKSTATION INVENTORY
+# Treat this as the baseline scope to represent in the product and its planning
+# model. Research exact versions and platform-specific installation methods
+# before implementing any installer/provider.
+provisioning_catalogue:
+  installation_strategy:
+    - "Use a declarative capability catalogue with stable IDs, versions, dependencies, platform support, and optionality."
+    - "Let users select capabilities; do not install every catalogue item by default."
+    - "Resolve dependencies and conflicts before generating a plan."
+    - "Show the exact software, components, versions, package sources, and proposed actions in the plan."
+    - "Prefer official vendor distributions and official package repositories."
+    - "Pin versions when the user requests reproducibility; otherwise use a documented supported channel such as LTS or stable."
+    - "Never silently add unrelated applications, telemetry agents, browser extensions, IDE extensions, or background services."
+    - "Never install a second copy when a compatible installation is already detected."
+    - "Provide update, repair, verification, and uninstall capabilities only as separately defined and authorized operations."
+  phases:
+    - id: "system-foundation"
+      order: 10
+      name: "Operating system preparation and system features"
+      target: "Windows 11 first; OS-specific equivalents later"
+      capabilities:
+        - id: "system.windows.features"
+          items:
+            - "Check Windows version, architecture, available disk space, and required privileges."
+            - "Check virtualization support and enablement state."
+            - "WSL2 and required Windows components"
+            - "Hyper-V or the appropriate virtualization feature when supported and selected"
+            - "Windows Terminal"
+            - "PowerShell 7"
+          notes:
+            - "Do not change power, security, privacy, firewall, Defender, BitLocker, or other system policies without an explicit user choice and a clear impact explanation."
+            - "Do not enable optional Windows features automatically without preview and authorization."
+        - id: "system.workspace-folders"
+          items:
+            - "Create the selected workspace root, with D:\Workspace as the documented Windows baseline."
+            - "Create user-selected project folders under the workspace root."
+            - "Keep source code, datasets, SDKs, containers, and caches in clearly named locations when the user chooses those locations."
+          notes:
+            - "Do not hard-code a drive letter if the user selected another drive."
+            - "Never overwrite or delete existing folders."
+    - id: "core-utilities"
+      order: 20
+      name: "Core developer and desktop utilities"
+      capabilities:
+        - id: "shell.powershell"
+          software: "PowerShell 7"
+          required_for_baseline: true
+        - id: "terminal.windows-terminal"
+          software: "Windows Terminal"
+          required_for_baseline: true
+        - id: "vcs.git"
+          software: "Git"
+          required_for_baseline: true
+        - id: "github.cli"
+          software: "GitHub CLI (gh)"
+          required_for_baseline: true
+        - id: "editor.vscode"
+          software: "Visual Studio Code"
+          required_for_baseline: true
+          notes:
+            - "Install the editor only when selected."
+            - "Do not automatically install VS Code extensions; extension selection is a separate user-controlled task."
+        - id: "utility.powertoys"
+          software: "Microsoft PowerToys"
+          optional: true
+        - id: "utility.everything"
+          software: "Everything search"
+          optional: true
+        - id: "archive.7zip"
+          software: "7-Zip"
+          optional: true
+        - id: "media.vlc"
+          software: "VLC media player"
+          optional: true
+        - id: "editor.notepadpp"
+          software: "Notepad++"
+          optional: true
+        - id: "notes.obsidian"
+          software: "Obsidian"
+          optional: true
+        - id: "vcs.git-lfs"
+          software: "Git LFS"
+          optional: true
+      configuration:
+        - "Offer Git identity and line-ending configuration as explicit user inputs."
+        - "Offer GitHub CLI authentication as a separate interactive step; never collect or store tokens in Atlas configuration."
+        - "Do not sign in to accounts or accept licenses on the user's behalf without explicit interaction."
+    - id: "linux-environment"
+      order: 30
+      name: "Linux environment on Windows"
+      capabilities:
+        - id: "linux.wsl2"
+          software: "Windows Subsystem for Linux 2"
+          optional: true
+        - id: "linux.ubuntu"
+          software: "Ubuntu distribution for WSL2"
+          optional: true
+      notes:
+        - "Check Windows edition, WSL prerequisites, virtualization, and reboot requirements."
+        - "Distribution installation and first-run user creation require clear user guidance."
+        - "Do not assume WSL2 is available on macOS or Linux; use native OS environments there."
+    - id: "programming-languages-and-runtimes"
+      order: 40
+      name: "Programming languages, runtimes, SDKs, and build tools"
+      capabilities:
+        - id: "language.python"
+          software: "CPython"
+          version_policy: "User-selected supported version; example configuration currently uses 3.12."
+          optional: false
+        - id: "python.miniconda"
+          software: "Miniconda"
+          optional: true
+        - id: "python.uv"
+          software: "uv Python/package/project manager"
+          optional: true
+        - id: "python.jupyter"
+          software: "JupyterLab / Jupyter Notebook"
+          optional: true
+        - id: "language.java"
+          software: "JDK"
+          version_policy: "21 LTS baseline"
+          optional: false
+        - id: "language.javascript"
+          software: "Node.js"
+          version_policy: "LTS baseline; user may select a supported version"
+          optional: false
+        - id: "javascript.nvm"
+          software: "nvm-windows on Windows; an appropriate nvm implementation on supported Unix-like systems"
+          optional: true
+        - id: "javascript.package-managers"
+          software:
+            - "npm"
+            - "pnpm"
+            - "Yarn"
+          optional: true
+          notes:
+            - "npm is included with Node.js; pnpm and Yarn are optional and must not be installed unless selected."
+        - id: "language.typescript"
+          software: "TypeScript"
+          optional: true
+        - id: "language.cpp"
+          software: "C and C++ toolchain"
+          optional: true
+          notes:
+            - "Select a compatible compiler/toolchain per OS; do not assume one compiler works on every platform."
+        - id: "build.cmake"
+          software: "CMake"
+          optional: true
+        - id: "language.csharp"
+          software: "C# and .NET SDK"
+          optional: true
+        - id: "language.go"
+          software: "Go"
+          optional: true
+        - id: "language.rust"
+          software: "Rust stable toolchain"
+          optional: true
+        - id: "language.kotlin"
+          software: "Kotlin toolchain"
+          optional: true
+        - id: "language.dart"
+          software: "Dart SDK"
+          optional: true
+        - id: "framework.flutter"
+          software: "Flutter SDK"
+          optional: true
+        - id: "language.swift"
+          software: "Swift toolchain"
+          optional: true
+          notes:
+            - "Respect platform restrictions and official toolchain availability, especially on Windows."
+        - id: "language.php"
+          software: "PHP"
+          optional: true
+        - id: "language.ruby"
+          software: "Ruby"
+          optional: true
+        - id: "language.r"
+          software: "R"
+          optional: true
+        - id: "language.wasm"
+          software: "WebAssembly toolchain"
+          optional: true
+      notes:
+        - "CMake is a build/configuration tool, not a programming language."
+        - "Do not install every language by default. Make the language/toolchain selection explicit."
+        - "Resolve compilers, SDKs, environment variables, and build dependencies per target OS."
+    - id: "mobile-development"
+      order: 50
+      name: "Android and mobile development"
+      capabilities:
+        - id: "mobile.android-studio"
+          software: "Android Studio"
+          optional: true
+        - id: "mobile.android-sdk"
+          software: "Android SDK command-line tools and selected SDK platforms/build tools"
+          optional: true
+        - id: "mobile.android-emulator"
+          software: "Android Emulator and user-selected AVD images"
+          optional: true
+        - id: "mobile.flutter-tooling"
+          software: "Flutter/Dart Android development integration"
+          optional: true
+      notes:
+        - "Android Studio, SDK components, emulator images, and device drivers are distinct installable components."
+        - "Explain disk-space and virtualization requirements before downloading emulator images."
+        - "Do not create or launch an emulator unless the user selects that action."
+    - id: "cloud-and-devops"
+      order: 60
+      name: "Cloud CLIs, infrastructure, containers, and Kubernetes tools"
+      capabilities:
+        - id: "cloud.aws-cli"
+          software: "AWS CLI"
+          optional: true
+        - id: "cloud.aws-sam"
+          software: "AWS SAM CLI"
+          optional: true
+        - id: "cloud.aws-cdk"
+          software: "AWS CDK"
+          optional: true
+        - id: "cloud.azure-cli"
+          software: "Azure CLI"
+          optional: true
+        - id: "cloud.gcloud"
+          software: "Google Cloud CLI"
+          optional: true
+        - id: "iac.terraform"
+          software: "Terraform"
+          optional: true
+        - id: "container.docker"
+          software: "Docker Desktop on supported Windows/macOS configurations; Docker Engine on supported Linux configurations"
+          optional: true
+        - id: "container.compose"
+          software: "Docker Compose"
+          optional: true
+        - id: "kubernetes.kubectl"
+          software: "kubectl"
+          optional: true
+        - id: "kubernetes.helm"
+          software: "Helm"
+          optional: true
+        - id: "kubernetes.kind"
+          software: "kind (Kubernetes in Docker)"
+          optional: true
+        - id: "kubernetes.k9s"
+          software: "k9s"
+          optional: true
+      notes:
+        - "Installing a CLI is not the same as configuring cloud credentials or deploying infrastructure."
+        - "Authentication and account linking must be separate, interactive, and opt-in."
+        - "Never run terraform apply, cloud resource creation, Kubernetes mutations, or cluster deployment as part of workstation setup without explicit authorization."
+        - "Docker Desktop licensing, WSL integration, virtualization, and platform prerequisites must be checked against current official documentation."
+    - id: "databases-and-local-services"
+      order: 70
+      name: "Database clients and optional containerized development services"
+      capabilities:
+        - id: "database.postgresql-client"
+          software: "PostgreSQL client tools"
+          optional: true
+        - id: "database.mysql-client"
+          software: "MySQL client tools"
+          optional: true
+        - id: "database.mongodb-tools"
+          software: "MongoDB Database Tools / client"
+          optional: true
+        - id: "database.redis-tools"
+          software: "Redis CLI/client tools"
+          optional: true
+        - id: "database.postgresql-container"
+          software: "PostgreSQL development container"
+          optional: true
+        - id: "database.mysql-container"
+          software: "MySQL development container"
+          optional: true
+        - id: "database.mongodb-container"
+          software: "MongoDB development container"
+          optional: true
+        - id: "database.redis-container"
+          software: "Redis development container"
+          optional: true
+      policy:
+        preferred_local_service_model: "Containers managed through Docker/Compose"
+        native_database_server_installation_on_windows: "Do not install by default; prefer containerized development services."
+      notes:
+        - "Database clients and database servers are separate capabilities."
+        - "Do not pull images, create volumes, start containers, expose ports, or initialize databases during plan preview."
+        - "Bind local development services to loopback by default."
+        - "Explain persistent volume locations, ports, credentials, and data deletion risks before creating services."
+    - id: "machine-learning-and-data-science"
+      order: 80
+      name: "Machine learning, data science, and computer vision environments"
+      capabilities:
+        - id: "ml.conda-environments"
+          software:
+            - "TensorFlow environment"
+            - "PyTorch environment"
+            - "OpenCV environment"
+            - "LLM development environment"
+          optional: true
+        - id: "ml.tensorflow"
+          software: "TensorFlow"
+          optional: true
+        - id: "ml.pytorch"
+          software: "PyTorch"
+          optional: true
+        - id: "ml.opencv"
+          software: "OpenCV"
+          optional: true
+        - id: "ml.cuda"
+          software: "NVIDIA CUDA Toolkit and compatible GPU libraries"
+          optional: true
+          conditions:
+            - "Only offer when a compatible NVIDIA GPU and driver are detected or the user explicitly configures a target machine."
+            - "Require an explicit opt-in; CUDA is not a universal workstation dependency."
+            - "Verify compatibility among GPU model, driver, CUDA version, framework build, and operating system."
+      notes:
+        - "Prefer isolated Conda/uv environments over installing large ML packages globally."
+        - "Do not assume CUDA is available or required."
+        - "Show approximate download/storage requirements when reliable data is available."
+    - id: "maintenance-and-lifecycle"
+      order: 90
+      name: "Verification, repair, updates, cleanup, and uninstall"
+      capabilities:
+        - id: "maintenance.detect"
+          software: "Installed-software and prerequisite detection"
+          status: "future capability; not currently implemented"
+        - id: "maintenance.verify"
+          software: "Post-install verification"
+          status: "future capability; not currently implemented"
+        - id: "maintenance.update"
+          software: "User-approved package updates"
+          status: "future capability; not currently implemented"
+        - id: "maintenance.repair"
+          software: "User-approved repair operations"
+          status: "future capability; not currently implemented"
+        - id: "maintenance.cleanup"
+          software: "User-reviewed cache and temporary-file cleanup"
+          status: "future capability; not currently implemented"
+        - id: "maintenance.uninstall"
+          software: "User-approved uninstall operations"
+          status: "future capability; not currently implemented"
+      notes:
+        - "Never equate cleanup with deleting user data."
+        - "Show exact paths, packages, and impact before cleanup or uninstall."
+        - "Do not claim rollback or recovery unless implemented and tested."
+
+  platform_mapping_requirements:
+    windows:
+      initial_baseline: true
+      package_manager_strategy: "Research and select a supported package source per package; do not assume all tools use the same manager."
+      special_cases:
+        - "WSL2, Windows optional features, Hyper-V, and reboots need explicit prerequisite checks."
+        - "Use nvm-windows for the Windows Node.js version-manager path."
+        - "Use Docker Desktop only on supported configurations and respect its current licensing terms."
+    macos:
+      initial_baseline: false
+      package_manager_strategy: "Research Homebrew and official vendor installers; use only where supported."
+      special_cases:
+        - "Xcode Command Line Tools and Apple platform SDK requirements must be checked for relevant development toolchains."
+        - "Do not assume Windows utilities or installers have macOS equivalents."
+    linux:
+      initial_baseline: false
+      package_manager_strategy: "Declare and test support separately for each distribution/package manager."
+      supported_distribution_families_to_research:
+        - debian
+        - ubuntu
+        - fedora
+        - rhel
+        - arch
+      special_cases:
+        - "Detect distribution and version before selecting commands."
+        - "Distinguish Docker Engine from Docker Desktop."
+        - "Do not assume package names or service-management commands are portable across distributions."
+
+  inventory_representation_rules:
+    - "Every installable item must have a stable capability ID, display name, category, platform support, version policy, optionality, dependencies, and source/provenance."
+    - "Represent tools separately when they are independently selectable or have separate prerequisites; examples include Android Studio versus Android SDK, Docker versus Compose, and database client versus server."
+    - "Show users the actual package/application names, not only abstract categories such as developer tools."
+    - "For each planned install, show version/channel, target OS, package source, dependencies, disk impact when known, privilege requirements, and whether a restart is needed."
+    - "Mark mandatory baseline components separately from optional components."
+    - "Do not silently install optional tools."
+    - "Do not invent versions, package IDs, download URLs, checksums, or compatibility claims."
+    - "Record researched package-manager mappings and official sources in project documentation."
+    - "Do not label an item installable until its provider exists and is tested on that OS/version/architecture."
 
 non_negotiable_rules:
-  - "Read the relevant source files before editing."
+  - "Read relevant source files before editing."
   - "Treat the repository implementation as the source of truth for current behavior."
   - "Do not infer implementation from README text, roadmap entries, comments, mock data, or type definitions alone."
   - "Do not invent files, commands, APIs, capabilities, tests, or successful results."
-  - "Do not silently remove existing features, project decisions, or user-facing workflows."
+  - "Do not silently remove existing features, inventory items, project decisions, or user-facing workflows."
   - "Do not replace the current application with a new scaffold or unrelated template."
-  - "Do not introduce unrelated projects or merge separate project identities into Atlas."
-  - "Do not make destructive changes without explaining the impact and obtaining explicit approval."
-  - "Do not execute host-changing operations, installers, cleanup, deletion, or privileged commands without explicit authorization."
+  - "Do not merge unrelated projects into Atlas."
+  - "Do not make destructive changes without explaining impact and obtaining explicit approval."
+  - "Do not execute installers, cleanup, deletion, privileged commands, or host-changing operations without explicit authorization."
   - "Keep secrets, tokens, credentials, private keys, and personal data out of source code, logs, examples, and commits."
   - "Prefer small, reviewable changes over broad rewrites."
 
@@ -77,46 +473,51 @@ operating_workflow:
   required_loop:
     - step: "Understand"
       actions:
-        - "Read this file and the relevant project documentation."
-        - "Inspect the repository tree, package scripts, configuration, source, and tests relevant to the task."
-        - "Check the current Git diff and recent history before changing existing work."
+        - "Read this file and relevant project documentation."
+        - "Inspect repository tree, package scripts, configuration, source, and tests relevant to the task."
+        - "Check current Git diff and recent history before changing existing work."
+        - "Compare the requested change against the intended provisioning catalogue above."
     - step: "Research"
       actions:
-        - "Use official documentation and primary sources for platform, package, API, and security claims."
-        - "Check whether a proposed dependency or command is compatible with the actual project versions."
-        - "Record uncertainty instead of guessing."
+        - "Use official vendor documentation and primary sources for platform, package, API, version, and security claims."
+        - "Verify package names, supported versions, architectures, checksums/signatures where applicable, licensing, and installation prerequisites."
+        - "Research each OS separately; record unsupported combinations rather than guessing."
+        - "Check compatibility with the actual project and target OS versions."
     - step: "Plan"
       actions:
         - "State the intended change and identify affected files."
-        - "Identify compatibility, security, migration, and documentation risks."
+        - "List the exact applications, runtimes, SDKs, and components affected."
+        - "Identify dependencies, conflicts, disk impact, privileges, reboot requirements, and security risks."
         - "Preserve existing behavior unless the task explicitly changes it."
     - step: "Implement"
       actions:
         - "Follow the existing architecture, naming, formatting, and component patterns."
         - "Keep modules focused and avoid unnecessary abstractions."
         - "Add or update tests for changed behavior."
+        - "Keep catalogue metadata separate from executable provider implementations."
     - step: "Verify"
       actions:
-        - "Run the relevant tests and checks available in the repository."
+        - "Run relevant tests and checks available in the repository."
         - "Run npm run typecheck, npm test, and npm run build when changes affect the application."
+        - "Validate YAML syntax and schema when changing YAML configuration or this file, using a parser available in the project or an explicitly documented validation tool."
         - "Inspect the final diff for accidental changes, secrets, generated files, and documentation drift."
     - step: "Report"
       actions:
         - "Summarize what changed and why."
+        - "List exact software/components added, changed, or removed."
         - "List files changed."
-        - "Report the exact checks run and their results."
-        - "Clearly identify anything not tested, incomplete, blocked, or assumed."
+        - "Report exact checks run and their results."
+        - "Clearly identify what is implemented, planned, unverified, unsupported, or blocked."
 
 documentation_policy:
   audience_first:
-    default_style: "Beginner-friendly, plain English, step-by-step"
+    default_style: "Beginner-friendly plain English, step-by-step"
     principles:
       - "Assume the reader may be completely new to the subject."
       - "Explain what a feature does before explaining how it works."
-      - "Explain unfamiliar technical terms in ordinary language when first introduced."
-      - "Give exact steps, commands, and expected results where applicable."
-      - "Tell the reader what to do when a step fails."
-      - "Do not make users understand the internal architecture just to use Atlas."
+      - "Explain unfamiliar terms in ordinary language when first introduced."
+      - "Give exact steps, commands, expected results, and recovery steps."
+      - "Do not make users understand internal architecture just to use Atlas."
       - "Avoid unexplained acronyms, dense paragraphs, and unnecessary jargon."
       - "Never sacrifice correctness or safety to make instructions shorter."
   document_types:
@@ -125,15 +526,14 @@ documentation_policy:
       style: "Short, welcoming, beginner-friendly"
       must_cover:
         - "What Atlas is"
-        - "What works today"
-        - "What is not implemented yet"
-        - "Prerequisites"
-        - "Exact getting-started steps"
+        - "What works today and what does not"
+        - "The categories of software Atlas is intended to help install"
+        - "Prerequisites and exact getting-started steps"
         - "How to use the current application"
         - "Safety limitations"
     installation_and_user_guides:
       audience: "People using Atlas"
-      style: "Idiot-proof, sequential instructions with expected outcomes"
+      style: "Sequential, idiot-proof instructions with expected outcomes and troubleshooting"
     architecture_and_developer_docs:
       audience: "Developers and maintainers"
       style: "Technically precise, detailed, and evidence-based"
@@ -142,38 +542,37 @@ documentation_policy:
       style: "Source-backed, dated, explicit about uncertainty"
   documentation_guardrails:
     - "Do not turn the README into an engineering design document."
-    - "Do not remove useful beginner instructions merely to make documentation more technical."
-    - "Keep deep implementation details in architecture or developer documentation."
+    - "Do not remove useful beginner instructions to make documentation more technical."
+    - "Keep deep implementation details in architecture/developer docs."
     - "Keep user documentation consistent with verified application behavior."
-    - "Label implemented, partially implemented, planned, and proposed features accurately."
+    - "Label implemented, partially implemented, planned, proposed, and unverified features accurately."
     - "Never document a planned command or installer as if it currently works."
-    - "When revising documentation, preserve its useful content and explain any necessary corrections."
+    - "When explaining the intended inventory, list actual software names and clearly state that the current app does not install them yet."
 
 architecture_and_implementation:
   principles:
-    - "Modular and configuration-driven design"
-    - "Deterministic planning"
-    - "Explicit separation of desired state and observed state"
-    - "Dependency-aware planning"
-    - "Idempotency for future provisioning operations"
-    - "Safe defaults and explicit authorization"
-    - "Clear diagnostics and verifiable outcomes"
-    - "Cross-platform behavior must be declared and tested per operating system and architecture"
+    - "Modular and configuration-driven design."
+    - "Deterministic, dependency-aware planning."
+    - "Explicit separation of desired state and observed state."
+    - "Idempotency for future provisioning operations."
+    - "Safe defaults, preview-first execution, and explicit authorization."
+    - "Clear diagnostics and verifiable outcomes."
+    - "Cross-platform behavior must be declared and tested per OS and architecture."
   state_model:
-    declared: "What the user requested"
-    observed: "What the system has actually detected"
-    planned: "What Atlas proposes to do"
-    executable: "What a verified implementation can perform"
-    actual: "What was successfully changed and then verified"
+    declared: "What the user requested."
+    observed: "What the system has actually detected."
+    planned: "What Atlas proposes to do."
+    executable: "What a verified provider implementation can perform."
+    actual: "What was successfully changed and then verified."
   rules:
     - "Never treat declared state as observed state."
     - "Never treat a plan as execution."
-    - "Never report success without evidence from the operation and its verification."
-    - "A capability must not be executable merely because it exists in a catalogue."
-    - "Package manager, OS, distribution, architecture, version, privilege, and prerequisites must be checked before future execution."
+    - "Never report success without operation and verification evidence."
+    - "A capability is not executable merely because it exists in a catalogue."
+    - "Check package manager, OS, distribution, architecture, version, privileges, and prerequisites before execution."
     - "Do not assume Windows instructions work on macOS or Linux."
     - "Do not assume Linux distributions use the same package manager."
-    - "Do not run infrastructure-changing commands such as terraform apply or Kubernetes mutations as part of workstation setup without explicit user authorization."
+    - "Do not run terraform apply, cloud resource creation, or Kubernetes mutations as workstation setup without explicit authorization."
 
 security_and_safety:
   defaults:
@@ -182,20 +581,21 @@ security_and_safety:
     destructive_operations: "require_explicit_authorization"
     network_services: "do_not_expose_by_default"
   requirements:
-    - "Preview intended changes before execution."
+    - "Preview exact intended changes before execution."
     - "Explain elevated permissions and their consequences."
     - "Do not disable security protections as a convenience."
     - "Do not store passwords or service credentials in YAML examples or committed files."
-    - "Use secure secret-management practices for any future service configuration."
+    - "Use secure secret-management practices for future service configuration."
     - "Bind optional local development services to loopback by default."
-    - "Do not start databases or network listeners during preview."
+    - "Do not start databases, containers, or network listeners during preview."
     - "Do not claim a restore point, backup, rollback, or recovery path exists unless verified."
+    - "Show license/terms implications where they materially affect installation or use."
 
 change_management:
   before_editing:
     - "Identify the authoritative source file for the behavior being changed."
-    - "Check for existing tests and callers."
-    - "Check whether the requested change conflicts with a previously established project decision."
+    - "Check existing tests, callers, and related capability definitions."
+    - "Check whether the requested change conflicts with an established project decision."
   during_editing:
     - "Avoid broad formatting or unrelated refactors."
     - "Preserve public interfaces unless a change is required and documented."
@@ -203,7 +603,7 @@ change_management:
   before_finishing:
     - "Review the complete diff."
     - "Check for stale or contradictory documentation."
-    - "Confirm that no unrelated files were changed."
+    - "Confirm no unrelated files were changed."
     - "Do not claim a commit, push, deployment, or test succeeded unless the tool result confirms it."
 
 communication:
@@ -212,21 +612,23 @@ communication:
     - "Use plain language for user-facing explanations."
     - "Use technical terminology in developer discussions when it improves precision."
     - "Explain important trade-offs and risks."
-    - "Ask one focused question when a missing requirement blocks safe progress."
+    - "Ask one focused question only when a missing requirement blocks safe progress."
   status_labels:
-    implemented: "Verified in the current source code or by a successful test."
-    partial: "Some parts exist, but the full behavior is not complete."
-    planned: "An intended future feature with no verified implementation."
-    proposed: "A suggestion that has not been approved as a project decision."
+    implemented: "Verified in current source code or by a successful test."
+    partial: "Some parts exist, but the full behavior is incomplete."
+    planned: "Intended future feature with no verified implementation."
+    proposed: "Suggestion not yet approved as a project decision."
     unverified: "Not yet checked against source code or runtime evidence."
+    unsupported: "Known not to work for the selected target."
 
 final_response:
   required:
-    - "Task outcome"
-    - "Summary of implementation or documentation changes"
-    - "Files affected"
-    - "Verification performed and exact results"
-    - "Known limitations or remaining work"
+    - "Task outcome."
+    - "Exact software and components affected."
+    - "Summary of implementation or documentation changes."
+    - "Files affected."
+    - "Verification performed and exact results."
+    - "Known limitations and remaining work."
   prohibited:
     - "Do not claim unverified functionality."
     - "Do not hide failed checks."
