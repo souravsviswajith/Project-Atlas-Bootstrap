@@ -116,7 +116,7 @@ export function authorizePlan(plan: AtlasPlan, authorization: ExecutionAuthoriza
   if (!authorization.approved || authorization.confirmationText !== "APPLY ATLAS PLAN") {
     throw new Error("Execution denied: explicit authorization phrase is required.");
   }
-  if (plan.compatibilityIssues.some((issue) => issue.severity === "error")) throw new Error("Execution denied: compatibility constraints are not satisfied.");
+  if (plan.compatibilityIssues.some((issue) => issue.severity === "error" || issue.code === "version-unresolved")) throw new Error("Execution denied: compatibility constraints or version resolution are incomplete.");
   if (plan.steps.some((step) => step.state !== "planned")) throw new Error("Execution denied: plan contains unavailable or blocked capabilities.");
   return { schemaVersion: 1, mode: "apply", target: plan.target, steps: plan.steps, authorizedAt: now.toISOString(), hasMutations: true };
 }
