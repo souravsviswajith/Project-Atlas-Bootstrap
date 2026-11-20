@@ -230,6 +230,13 @@ export default function App() {
                 <span className="text-xs text-slate-500">Generated {new Date(previewPlan.generatedAt).toLocaleString()}</span>
               </div>
               <p className="mt-1 text-xs text-slate-400">Prerequisites are ordered first. “Planned” means a candidate only—not installed, detected, compatible, or verified.</p>
+              {previewPlan.compatibilityIssues.length > 0 && <div className="mt-3 space-y-2" role="status" aria-live="polite">
+                {previewPlan.compatibilityIssues.map((issue, index) => <div key={`${issue.code}-${issue.capabilityIds.join("-")}-${index}`} className={`rounded-lg border p-3 text-xs ${issue.severity === "error" ? "border-red-900 bg-red-950/40 text-red-200" : "border-amber-900 bg-amber-950/30 text-amber-200"}`}>
+                  <p className="font-semibold">{issue.severity === "error" ? "Compatibility conflict" : "Version resolution pending"} · {issue.capabilityIds.join(", ")}</p>
+                  <p className="mt-1">{issue.message}</p>
+                  <p className="mt-1 opacity-80">Next step: {issue.remediation}</p>
+                </div>)}
+              </div>}
               {previewPlan.steps.length === 0 ? <p className="mt-3 text-sm text-slate-400">Select one or more capabilities to preview dependencies.</p> : <ol className="mt-3 space-y-2">
                 {previewPlan.steps.map((step, index) => <li key={step.capabilityId} className="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
                   <div className="flex flex-wrap items-center gap-2 text-sm"><span className="w-6 text-xs tabular-nums text-slate-500">{index + 1}.</span><strong className="text-slate-100">{step.name}</strong><span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${step.state === "planned" ? "bg-indigo-950 text-indigo-300" : step.state === "blocked" ? "bg-red-950 text-red-300" : "bg-amber-950 text-amber-300"}`}>{step.state}</span></div>
