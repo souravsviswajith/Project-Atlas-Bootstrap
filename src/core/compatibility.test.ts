@@ -57,8 +57,8 @@ describe("semantic version constraints", () => {
 
 describe("package compatibility planning", () => {
   it("blocks both sides of a declared package conflict", () => {
-    const first = makeCapability("test.first", { conflicts: ["test.second"] });
-    const second = makeCapability("test.second");
+    const first = makeCapability("test.first");
+    const second = makeCapability("test.second", { conflicts: ["test.first"] });
     const plan = createPlan(makeConfig([
       { id: first.id, optional: false },
       { id: second.id, optional: false },
