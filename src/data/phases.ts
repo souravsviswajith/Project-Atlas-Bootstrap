@@ -5,6 +5,8 @@ export interface ChecklistItem {
   label: string;
   note?: string;
   commands?: string[];
+  /** Restrict commands that are specific to one execution OS. */
+  commandPlatforms?: TargetOS[];
 }
 
 export interface Section {
@@ -260,6 +262,7 @@ export const phases: Phase[] = [
           {
             id: "node-lts",
             label: "Install & use latest Node.js LTS",
+            commandPlatforms: ["windows"],
             commands: ["nvm install lts", "nvm use lts", "node -v && npm -v"],
           },
         ],
@@ -548,9 +551,10 @@ export function getPhasesForTarget(os: TargetOS): Phase[] {
     sections: phase.sections.map((section) => ({
       ...section,
       items: section.items.map((item) => {
-        const commands = (item.commands ?? []).filter((command) => !windowsOnlyCommand.test(command));
-        if (commands.length === (item.commands ?? []).length) return item;
-        const note = "Windows-specific command(s) hidden for this target. Use the vendor's official instructions for this OS; remaining commands are verification or shell-neutral steps.";
+        const restricted = item.commandPlatforms !== undefined && !item.commandPlatforms.includes(os);
+        const commands = restricted ? [] : (item.commands ?? []).filter((command) => !windowsOnlyCommand.test(command));
+        if (!restricted && commands.length === (item.commands ?? []).length) return item;
+        const note = "Commands for this step are not catalogued for the selected OS. Use the vendor's official instructions; no command is executed by Atlas.";
         return { ...item, commands: commands.length ? commands : undefined, note: item.note ? `${item.note} ${note}` : note };
       }),
     })),
