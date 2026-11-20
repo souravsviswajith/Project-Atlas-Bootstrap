@@ -81,10 +81,10 @@ describe("capability registry and planning", () => {
   });
 
   it("uses Linux distro providers for WSL without treating WSL as native Windows", () => {
-    const config = parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\n  environment: wsl\n  hostOS: windows\n  wslVersion: 2\ncapabilities:\n  - id: git.git\n");
+    const config = parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\n  environment: wsl\n  hostOS: windows\n  wslVersion: 2\ncapabilities:\n  - id: javascript.typescript\n");
     const plan = createPlan(config);
     expect(plan.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 2 });
-    expect(plan.steps[0].provider?.manager).toBe("apt");
+    expect(plan.steps.map((step) => step.provider?.manager)).toEqual(["apt", "apt", "apt"]);
   });
 
   it("detects cycles rather than producing a partial plan", () => {
