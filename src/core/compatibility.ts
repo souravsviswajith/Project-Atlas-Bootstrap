@@ -1,4 +1,4 @@
-import type { Architecture, Capability } from "./types";
+import type { Architecture, Capability, CompatibilityIssue } from "./types";
 
 interface ParsedVersion {
   major: number;
@@ -18,13 +18,6 @@ export interface CompatibilityRequest {
   version?: string;
 }
 
-export interface CompatibilityIssue {
-  code: "declared-conflict" | "dependency-version-mismatch" | "unsatisfiable-version-constraints" | "version-unresolved" | "unsupported-architecture";
-  severity: "error" | "warning";
-  capabilityIds: string[];
-  message: string;
-  remediation: string;
-}
 
 function parseVersion(value: string): ParsedVersion | undefined {
   const match = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(value.trim());
