@@ -1,6 +1,6 @@
 import type { Capability, ProviderOption, TargetOS } from "./types";
 import { versionConstraintsOverlap } from "./compatibility";
-import { composeLanguagePacks } from "./language-packs";
+import { composeCapabilityInventory } from "./language-packs";
 
 const all = (manager: ProviderOption["manager"], pkg: string, why: string): Partial<Record<TargetOS, ProviderOption[]>> => {
   const windowsManager = manager === "manual" || manager === "homebrew" ? "winget" : manager;
@@ -75,7 +75,7 @@ const baseCapabilities: Capability[] = [
   catalog({ id: "database.redis-server", name: "Optional Redis-compatible local service", category: "database", description: "Opt-in Redis-compatible local service; do not expose unauthenticated ports.", platforms: { windows: [{ manager: "manual", package: "redis image", rationale: "Requires Docker Desktop and explicit localhost-only networking." }], macos: [{ manager: "manual", package: "redis image", rationale: "Requires Docker runtime and explicit localhost-only networking." }], linux: [{ manager: "manual", package: "redis image", rationale: "Requires Docker Engine and explicit localhost-only networking." }] }, dependencies: ["container.docker"], versionPolicy: "user-selected", detection: { executable: "docker", versionArgs: ["image", "inspect", "redis"] }, verification: "Do not start a service in preview; if later authorized, bind loopback only and apply authentication where supported." }),
 ];
 
-export const capabilities: Capability[] = composeLanguagePacks(baseCapabilities);
+export const capabilities: Capability[] = composeCapabilityInventory(baseCapabilities);
 export const capabilityRegistry: ReadonlyArray<Capability> = Object.freeze(capabilities);
 export const capabilityById: ReadonlyMap<string, Capability> = new Map(capabilityRegistry.map((capability) => [capability.id, capability]));
 
