@@ -9,6 +9,9 @@ export class PlanningError extends Error {
 }
 
 function providerFor(capability: Capability, target: TargetPlatform): ProviderOption | undefined {
+  // No per-capability 32-bit provider matrix has been verified yet. Accept these
+  // target architectures in config, but do not claim catalogue availability.
+  if (target.arch === "x86" || target.arch === "arm32") return undefined;
   const options = capability.platforms[target.os] ?? [];
   if (target.os !== "linux") return options[0];
   const manager = target.distro === "debian" || target.distro === "ubuntu" ? "apt"
@@ -68,7 +71,9 @@ export function createPlan(config: AtlasConfig, now: Date = new Date(), registry
           reason: `Blocked because prerequisite '${unavailableDependency}' is unavailable.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
       : !provider
         ? { capabilityId: id, name: capability.name, state: "unavailable", requestedVersion: requested?.version,
-            reason: `No candidate provider is catalogued for ${config.target.os}${config.target.distro ? ` (${config.target.distro})` : ""}.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
+            reason: (config.target.arch === "x86" || config.target.arch === "arm32")
+              ? `No provider has a verified ${config.target.arch} architecture mapping yet.`
+              : `No candidate provider is catalogued for ${config.target.os}${config.target.distro ? ` (${config.target.distro})` : ""}.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
         : { capabilityId: id, name: capability.name, state: "planned", provider, requestedVersion: requested?.version,
             reason: requested ? "Explicitly requested; prerequisites are included first." : `Required prerequisite of ${capability.name}.`, dependencies: [...capability.dependencies], optional, verification: capability.verification };
     steps.push(step);
