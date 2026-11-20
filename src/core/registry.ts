@@ -1,4 +1,5 @@
 import type { Capability, ProviderOption, TargetOS } from "./types";
+import { versionConstraintsOverlap } from "./compatibility";
 
 const all = (manager: ProviderOption["manager"], pkg: string, why: string): Partial<Record<TargetOS, ProviderOption[]>> => {
   const windowsManager = manager === "manual" || manager === "homebrew" ? "winget" : manager;
@@ -88,6 +89,22 @@ export function assertRegistryIntegrity(registry: ReadonlyArray<Capability> = ca
     }
     for (const dependency of item.dependencies) {
       if (!registryIds.has(dependency)) throw new Error(`Unknown dependency ${dependency} required by ${item.id}`);
+    }
+    for (const [dependency, range] of Object.entries(item.dependencyConstraints ?? {})) {
+      if (!item.dependencies.includes(dependency)) {
+        throw new Error(`Version constraint references non-dependency ${dependency} in ${item.id}`);
+      }
+      if (!versionConstraintsOverlap([range])) {
+        throw new Error(`Invalid or unsatisfiable version constraint for ${dependency} in ${item.id}: ${range}`);
+      }
+    }
+    for (const conflict of item.conflicts ?? []) {
+      if (conflict === item.id) throw new Error(`Capability cannot conflict with itself: ${item.id}`);
+      if (!registryIds.has(conflict)) throw new Error(`Unknown conflict ${conflict} declared by ${item.id}`);
+    }
+    if (item.supportedArchitectures && (item.supportedArchitectures.length === 0 ||
+      new Set(item.supportedArchitectures).size !== item.supportedArchitectures.length)) {
+      throw new Error(`Invalid architecture support declaration: ${item.id}`);
     }
     if (Object.keys(item.platforms).length === 0) throw new Error(`No declared platform for ${item.id}`);
   }
