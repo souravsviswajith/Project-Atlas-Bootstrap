@@ -166,6 +166,7 @@ export function evaluateCompatibility(
   const requestById = new Map(requests.map((request) => [request.id, request]));
   const issues: CompatibilityIssue[] = [];
   const issueKeys = new Set<string>();
+  const conflictPairs = new Set<string>();
   const addIssue = (issue: CompatibilityIssue) => {
     const key = [issue.code, ...[...issue.capabilityIds].sort(), issue.message].join("|");
     if (!issueKeys.has(key)) { issueKeys.add(key); issues.push(issue); }
@@ -186,7 +187,9 @@ export function evaluateCompatibility(
     }
 
     for (const conflictId of capability.conflicts ?? []) {
-      if (selected.has(conflictId) && id.localeCompare(conflictId) < 0) {
+      const pairKey = [id, conflictId].sort().join("|");
+      if (selected.has(conflictId) && !conflictPairs.has(pairKey)) {
+        conflictPairs.add(pairKey);
         const other = byId.get(conflictId);
         addIssue({
           code: "declared-conflict",
