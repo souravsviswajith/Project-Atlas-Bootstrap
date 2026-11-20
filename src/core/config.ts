@@ -1,9 +1,9 @@
 import { parseDocument } from "yaml";
-import { TARGET_OS, type AtlasConfig, type Architecture, type LinuxDistro } from "./types";
+import { TARGET_OS, type AtlasConfig, type Architecture, type LinuxDistro, type TargetHost, type TargetOS } from "./types";
 import { capabilityById } from "./registry";
 
 const DISTROS: readonly LinuxDistro[] = ["debian", "ubuntu", "fedora", "rhel", "arch"];
-const ARCHES: readonly Architecture[] = ["x64", "arm64"];
+const ARCHES: readonly Architecture[] = ["x86", "x64", "arm32", "arm64"];
 const VERSION_CONSTRAINT = /^(?:stable|lts|current|latest|system|v?\d+(?:\.\d+){0,2}(?:[-+][0-9A-Za-z.-]+)?|(?:>=|>|<=|<|=|\^|~)\s*v?\d+(?:\.\d+){0,2}(?:\s+(?:>=|>|<=|<|=|\^|~)\s*v?\d+(?:\.\d+){0,2})*)$/;
 
 function compareVersion(a: number[], b: number[]): number {
@@ -75,15 +75,36 @@ export function parseAtlasConfig(source: string): AtlasConfig {
   if (raw.schemaVersion !== 1) issues.push("schemaVersion: expected 1 (migrate older documents explicitly)");
 
   const target = record(raw.target) ? raw.target : {};
-  rejectUnknownKeys(target, ["os", "arch", "distro", "osVersion", "distroVersion"], "target", issues);
+  rejectUnknownKeys(target, ["os", "arch", "distro", "osVersion", "distroVersion", "executionEnvironment", "environmentId", "wslVersion", "host"], "target", issues);
   if (!TARGET_OS.includes(target.os as (typeof TARGET_OS)[number])) issues.push("target.os: expected windows, macos, or linux");
-  if (!ARCHES.includes(target.arch as Architecture)) issues.push("target.arch: expected x64 or arm64");
+  if (!ARCHES.includes(target.arch as Architecture)) issues.push("target.arch: expected x86, x64, arm32, or arm64");
   if (target.os === "linux" && !DISTROS.includes(target.distro as LinuxDistro)) {
     issues.push("target.distro: Linux targets require debian, ubuntu, fedora, rhel, or arch");
   }
   if (target.os !== "linux" && target.distro !== undefined) issues.push("target.distro: only valid for Linux targets");
   if (target.osVersion !== undefined && (typeof target.osVersion !== "string" || !/^\d+(?:\.\d+){0,2}$/.test(target.osVersion))) issues.push("target.osVersion: expected a numeric release such as 11 or 15.6");
   if (target.distroVersion !== undefined && (target.os !== "linux" || typeof target.distroVersion !== "string" || !/^\d+(?:\.\d+){0,2}$/.test(target.distroVersion))) issues.push("target.distroVersion: valid only on Linux and must be a numeric release such as 24.04");
+
+  const executionEnvironment = target.executionEnvironment === undefined ? "native" : target.executionEnvironment;
+  if (executionEnvironment !== "native" && executionEnvironment !== "wsl") {
+    issues.push("target.executionEnvironment: expected native or wsl");
+  }
+  const host = record(target.host) ? target.host : undefined;
+  if (target.host !== undefined && !host) issues.push("target.host: expected a mapping");
+  if (host) {
+    rejectUnknownKeys(host, ["os", "arch", "osVersion"], "target.host", issues);
+    if (!TARGET_OS.includes(host.os as TargetOS)) issues.push("target.host.os: expected windows, macos, or linux");
+    if (!ARCHES.includes(host.arch as Architecture)) issues.push("target.host.arch: expected x86, x64, arm32, or arm64");
+    if (host.osVersion !== undefined && (typeof host.osVersion !== "string" || !/^\\d+(?:\\.\\d+){0,2}$/.test(host.osVersion))) issues.push("target.host.osVersion: expected a numeric release");
+  }
+  if (executionEnvironment === "wsl") {
+    if (target.os !== "linux") issues.push("target.executionEnvironment: wsl requires a Linux guest target");
+    if (!host || host.os !== "windows") issues.push("target.host: WSL requires Windows host facts");
+    if (typeof target.environmentId !== "string" || !target.environmentId.trim()) issues.push("target.environmentId: WSL requires a non-empty distribution identity");
+    if (target.wslVersion !== 1 && target.wslVersion !== 2) issues.push("target.wslVersion: WSL targets require version 1 or 2");
+  } else if (host || target.environmentId !== undefined || target.wslVersion !== undefined) {
+    issues.push("target.host, environmentId, and wslVersion: only valid for WSL targets");
+  }
 
   const requested = raw.capabilities === undefined ? [] : raw.capabilities;
   const parsedCapabilities: AtlasConfig["capabilities"] = [];
@@ -137,7 +158,10 @@ export function parseAtlasConfig(source: string): AtlasConfig {
     target: { os: target.os as AtlasConfig["target"]["os"], arch: target.arch as Architecture,
       ...(target.os === "linux" ? { distro: target.distro as LinuxDistro } : {}),
       ...(typeof target.osVersion === "string" ? { osVersion: target.osVersion } : {}),
-      ...(typeof target.distroVersion === "string" ? { distroVersion: target.distroVersion } : {}) },
+      ...(typeof target.distroVersion === "string" ? { distroVersion: target.distroVersion } : {}),
+      executionEnvironment,
+      ...(executionEnvironment === "wsl" ? { environmentId: target.environmentId as string, wslVersion: target.wslVersion as 1 | 2,
+        host: { os: host!.os as TargetHost["os"], arch: host!.arch as Architecture, ...(typeof host!.osVersion === "string" ? { osVersion: host!.osVersion } : {}) } } : {}) },
     capabilities: parsedCapabilities,
     policy: { mode: "preview", requireAuthorization: true },
     verification: { required: verification.required !== false },
