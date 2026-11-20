@@ -17,7 +17,10 @@ function providerFor(capability: Capability, target: TargetPlatform): ProviderOp
   if (target.os !== "linux") return options[0];
   const manager = target.distro === "debian" || target.distro === "ubuntu" ? "apt"
     : target.distro === "fedora" || target.distro === "rhel" ? "dnf" : target.distro === "arch" ? "pacman" : undefined;
-  return options.find((option) => option.manager === manager);
+  // Some upstream toolchains are distributed as signed vendor archives rather than through
+  // every distro's native package manager. Keep those explicit manual candidates selectable.
+  return options.find((option) => option.manager === manager)
+    ?? options.find((option) => option.manager === "manual");
 }
 
 /** Deterministic topological preview. This function only reads registry/config data. */
@@ -113,11 +116,13 @@ export interface Executor { execute(request: AuthorizedExecutionRequest): Promis
 /** Converts a non-mutating preview into an explicit apply intent only after affirmative confirmation. */
 export function authorizePlan(plan: AtlasPlan, authorization: ExecutionAuthorization, now = new Date()): AuthorizedExecutionRequest {
   if (plan.mode !== "preview" || plan.hasMutations !== false) throw new Error("Invalid or unsupported preview plan");
+  if (plan.steps.length === 0) throw new Error("Execution denied: empty plans cannot be applied.");
   if (!authorization.approved || authorization.confirmationText !== "APPLY ATLAS PLAN") {
     throw new Error("Execution denied: explicit authorization phrase is required.");
   }
   if (plan.compatibilityIssues.some((issue) => issue.severity === "error" || issue.code === "version-unresolved")) throw new Error("Execution denied: compatibility constraints or version resolution are incomplete.");
   if (plan.steps.some((step) => step.state !== "planned")) throw new Error("Execution denied: plan contains unavailable or blocked capabilities.");
+  if (plan.steps.some((step) => capabilityRegistry.find((capability) => capability.id === step.capabilityId)?.implementation !== "verified-provider")) throw new Error("Execution denied: one or more capabilities are catalogue-only and have no verified executable provider.");
   return { schemaVersion: 1, mode: "apply", target: plan.target, steps: plan.steps, authorizedAt: now.toISOString(), hasMutations: true };
 }
 

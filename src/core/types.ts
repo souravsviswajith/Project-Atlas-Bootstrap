@@ -36,10 +36,12 @@ export interface ProviderOption {
   rationale: string;
 }
 
+export type CapabilityCategory = "language" | "runtime" | "package-manager" | "toolchain" | "editor" | "cloud" | "container" | "database" | "shell" | "configuration" | "mobile" | "hardware";
+
 export interface Capability {
   id: string;
   name: string;
-  category: "language" | "runtime" | "package-manager" | "toolchain" | "editor" | "cloud" | "container" | "database" | "shell" | "configuration" | "mobile";
+  category: CapabilityCategory;
   language?: string;
   description: string;
   platforms: Partial<Record<TargetOS, ProviderOption[]>>;
@@ -54,7 +56,7 @@ export interface Capability {
   detection: { executable: string; versionArgs: string[] };
   verification: string;
   environment?: string[];
-  implementation: "catalogued-plan-only";
+  implementation: "catalogued-plan-only" | "verified-provider";
 }
 
 export interface AtlasConfig {

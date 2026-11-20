@@ -207,7 +207,7 @@ export function evaluateCompatibility(
         addIssue({
           code: "declared-conflict",
           severity: "error",
-          capabilityIds: [id, conflictId],
+          capabilityIds: [id, conflictId].sort(),
           message: `${capability.name} conflicts with ${other?.name ?? conflictId}.`,
           remediation: "Remove one conflicting selection or choose an alternative provider/profile.",
         });

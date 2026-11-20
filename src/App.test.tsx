@@ -10,14 +10,14 @@ afterEach(() => {
 });
 
 describe("Atlas plan UI", () => {
-  it("labels the feature as preview-only and never represents checklist selection as installation", async () => {
+  it("labels the feature as preview-only and does not preselect user toolchains", async () => {
     const user = userEvent.setup();
     render(<App />);
     expect(screen.getByRole("heading", { name: /Choose capabilities and preview prerequisites/i })).toBeTruthy();
     expect(screen.getByText(/no native provisioning provider yet/i)).toBeTruthy();
+    expect(screen.getByText(/Atlas application build stack · not a user install pack/i)).toBeTruthy();
     await user.click(screen.getByRole("button", { name: /Generate deterministic preview/i }));
-    expect(screen.getByRole("heading", { name: /Plan:.*3 steps/ })).toBeTruthy();
-    expect(screen.getByText(/“Planned” means a candidate only—not installed, detected, compatible, or verified/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Plan: 0 steps/ })).toBeTruthy();
     expect(screen.getByText(/No install execution or observed-machine verification exists/i)).toBeTruthy();
   });
 
@@ -37,6 +37,28 @@ describe("Atlas plan UI", () => {
     await user.click(screen.getByRole("button", { name: /Generate deterministic preview/i }));
     expect(screen.getAllByText(/Explicitly requested/).length).toBeGreaterThan(0);
     expect(screen.getAllByText(/Provider candidate: apt/).length).toBeGreaterThan(0);
+  });
+
+  it("adds only the requirements of the selected artifact profile", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByRole("combobox", { name: /Artifact profile/i }), "php-composer-app");
+    await user.click(screen.getByRole("button", { name: /Add artifact requirements/i }));
+    await user.click(screen.getByRole("button", { name: /Generate deterministic preview/i }));
+    expect(screen.getByText("PHP CLI runtime")).toBeTruthy();
+    expect(screen.getByText("Composer")).toBeTruthy();
+    expect(screen.queryByText("C compiler toolchain")).toBeNull();
+    expect(screen.queryByText("SQLFluff (SQL lint and format)")).toBeNull();
+  });
+
+  it("keeps Assembly as an explicit artifact-specific hardware selection", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.selectOptions(screen.getByRole("combobox", { name: /Artifact profile/i }), "assembly-arm64");
+    await user.click(screen.getByRole("button", { name: /Add artifact requirements/i }));
+    await user.click(screen.getByRole("button", { name: /Generate deterministic preview/i }));
+    expect(screen.getByText("LLVM AArch64 assembler")).toBeTruthy();
+    expect(screen.queryByText("NASM assembler")).toBeNull();
   });
 
   it("provides keyboard-operable phase navigation and labelled checklist controls", async () => {
