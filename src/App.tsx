@@ -264,7 +264,7 @@ export default function App() {
                   <p className="mt-1 opacity-80">Next step: {issue.remediation}</p>
                 </div>)}
               </div>}
-              {previewPlan.steps.length === 0 ? <p className="mt-3 text-sm text-slate-400">Select one or more capabilities to preview dependencies.</p> : <ol className="mt-3 space-y-2">
+              {previewPlan.steps.length === 0 ? <p className="mt-3 text-sm text-slate-400">Select one or more capabilities to preview dependencies.</p> : <ol aria-label="Planned toolchain steps" className="mt-3 space-y-2">
                 {previewPlan.steps.map((step, index) => <li key={step.capabilityId} className="rounded-lg border border-slate-800 bg-slate-950/70 p-3">
                   <div className="flex flex-wrap items-center gap-2 text-sm"><span className="w-6 text-xs tabular-nums text-slate-500">{index + 1}.</span><strong className="text-slate-100">{step.name}</strong><span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase ${step.state === "planned" ? "bg-indigo-950 text-indigo-300" : step.state === "blocked" ? "bg-red-950 text-red-300" : "bg-amber-950 text-amber-300"}`}>{step.state}</span></div>
                   <p className="mt-1 pl-8 text-xs text-slate-400">{step.reason}{step.provider ? ` Provider candidate: ${step.provider.manager} · ${step.provider.package}.` : ""}</p>
