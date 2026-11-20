@@ -1,8 +1,12 @@
+import type { TargetOS } from "../core/types";
+
 export interface ChecklistItem {
   id: string;
   label: string;
   note?: string;
   commands?: string[];
+  /** Restrict commands that are specific to one execution OS. */
+  commandPlatforms?: TargetOS[];
 }
 
 export interface Section {
@@ -185,7 +189,7 @@ export const phases: Phase[] = [
           {
             id: "vsc-terminal",
             label: "Set default integrated terminal",
-            note: 'settings.json → "terminal.integrated.defaultProfile.windows": "PowerShell" (or "WSL")',
+            note: 'Set terminal.integrated.defaultProfile.windows on Windows; choose the corresponding platform-specific setting on macOS or Linux.',
           },
           {
             id: "vsc-formatter",
@@ -252,12 +256,13 @@ export const phases: Phase[] = [
         items: [
           {
             id: "node-nvm",
-            label: "Install nvm-windows",
+            label: "Install a Node.js version manager (Windows: nvm-windows)",
             commands: ["winget install -e --id CoreyButler.NVMforWindows"],
           },
           {
             id: "node-lts",
             label: "Install & use latest Node.js LTS",
+            commandPlatforms: ["windows"],
             commands: ["nvm install lts", "nvm use lts", "node -v && npm -v"],
           },
         ],
@@ -312,8 +317,8 @@ export const phases: Phase[] = [
         items: [
           {
             id: "android-sdk-move",
-            label: "Relocate Android SDK to D:\\Android\\Sdk",
-            note: "Android Studio → Settings → Languages & Frameworks → Android SDK → change SDK location, then move the folder. setx updates future processes only; open a new terminal to see changed environment variables (it does not modify the current shell).",
+            label: "Relocate Android SDK to a dedicated development-drive location",
+            note: "Choose a path appropriate for the target OS. On Windows, setx updates future processes only; open a new terminal to see changed environment variables (it does not modify the current shell).",
             commands: [
               'setx ANDROID_HOME "D:\\Android\\Sdk"',
               'setx ANDROID_SDK_ROOT "D:\\Android\\Sdk"',
@@ -321,8 +326,8 @@ export const phases: Phase[] = [
           },
           {
             id: "android-avd-move",
-            label: "Relocate AVDs to D:\\Android\\avd",
-            note: "setx changes the persistent user value for future processes; open a new terminal. It does not update the current process environment.",
+            label: "Relocate Android Virtual Devices to a dedicated storage location",
+            note: "Choose a storage path appropriate for the target OS. On Windows, setx changes the persistent user value for future processes; open a new terminal. It does not update the current process environment.",
             commands: ['setx ANDROID_AVD_HOME "D:\\Android\\avd"'],
           },
         ],
@@ -491,7 +496,7 @@ export const phases: Phase[] = [
     id: "databases",
     number: 13,
     title: "Databases (Docker)",
-    tagline: "Containerized databases — nothing installed on Windows",
+    tagline: "Containerized databases — keep local services isolated",
     icon: "Database",
     color: "from-amber-500 to-orange-600",
     sections: [
@@ -526,13 +531,35 @@ export const phases: Phase[] = [
           {
             id: "db-compose",
             label: "Prefer docker-compose for persistence & reuse",
-            note: "Define volumes for each service so data survives container restarts. Avoid installing databases directly on Windows.",
+            note: "Define volumes for each service so data survives container restarts. Prefer isolated local services over installing database servers directly on the host.",
           },
         ],
       },
     ],
   },
 ];
+
+/**
+ * Hide Windows package-manager and environment commands on non-Windows execution targets.
+ * The remaining checklist is guidance, not a detected or verified host state.
+ */
+export function getPhasesForTarget(os: TargetOS): Phase[] {
+  if (os === "windows") return phases;
+  const windowsOnlyCommand = /\bwinget\b|\bsetx\b|^clip\s/i;
+  return phases.map((phase) => ({
+    ...phase,
+    sections: phase.sections.map((section) => ({
+      ...section,
+      items: section.items.map((item) => {
+        const restricted = item.commandPlatforms !== undefined && !item.commandPlatforms.includes(os);
+        const commands = restricted ? [] : (item.commands ?? []).filter((command) => !windowsOnlyCommand.test(command));
+        if (!restricted && commands.length === (item.commands ?? []).length) return item;
+        const note = "Commands for this step are not catalogued for the selected OS. Use the vendor's official instructions; no command is executed by Atlas.";
+        return { ...item, commands: commands.length ? commands : undefined, note: item.note ? `${item.note} ${note}` : note };
+      }),
+    })),
+  }));
+}
 
 export const totalItemCount = phases.reduce(
   (sum, phase) => sum + phase.sections.reduce((s, sec) => s + sec.items.length, 0),

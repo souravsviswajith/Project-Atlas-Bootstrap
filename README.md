@@ -278,3 +278,9 @@ Project Atlas Bootstrap is licensed under the [Apache License 2.0](LICENSE).
 The current web app is a checklist and planning preview. It is not a system installer.
 
 When future versions gain the ability to change a computer, users must be shown what will happen and asked for permission before those changes are made. Always keep backups of important files before making major changes to a development machine.
+
+## Static installer UI prototype
+
+A separate, dependency-free HTML/CSS/vanilla JavaScript prototype is available in [`installer-ui/`](installer-ui/). Open [`installer-ui/index.html`](installer-ui/index.html) in a browser to explore the proposed dashboard, hardware-checkup screen, software catalogue, stack presets, checklist and review screen. This is a frontend prototype only; it does not inspect hardware, validate privileges, start a localhost service or install software.
+
+See [`docs/STATIC-INSTALLER-UI.md`](docs/STATIC-INSTALLER-UI.md) for the intended native-bootstrap and localhost-service boundary.

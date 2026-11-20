@@ -1,12 +1,19 @@
 export const TARGET_OS = ["windows", "macos", "linux"] as const;
 export type TargetOS = (typeof TARGET_OS)[number];
+export type ExecutionEnvironment = "native" | "wsl";
+export type WslVersion = 1 | 2;
 export type Architecture = "x64" | "arm64";
 export type LinuxDistro = "debian" | "ubuntu" | "fedora" | "rhel" | "arch";
 export type PackageManager = "winget" | "homebrew" | "apt" | "dnf" | "pacman" | "manual";
 
 export interface TargetPlatform {
+  /** OS where commands execute. For WSL this is linux, not the Windows host. */
   os: TargetOS;
   arch: Architecture;
+  /** Omitted means native. WSL is a Linux guest on a Windows host. */
+  environment?: ExecutionEnvironment;
+  hostOS?: "windows";
+  wslVersion?: WslVersion;
   /** Required for Linux to avoid assuming a package manager from the kernel alone. */
   distro?: LinuxDistro;
   /** Optional OS release/feature-version constraint; not yet checked against a live host. */

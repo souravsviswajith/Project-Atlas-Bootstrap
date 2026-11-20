@@ -1,5 +1,5 @@
 import { parseDocument } from "yaml";
-import { TARGET_OS, type AtlasConfig, type Architecture, type LinuxDistro } from "./types";
+import { TARGET_OS, type AtlasConfig, type Architecture, type LinuxDistro, type WslVersion } from "./types";
 import { capabilityById } from "./registry";
 
 const DISTROS: readonly LinuxDistro[] = ["debian", "ubuntu", "fedora", "rhel", "arch"];
@@ -75,8 +75,17 @@ export function parseAtlasConfig(source: string): AtlasConfig {
   if (raw.schemaVersion !== 1) issues.push("schemaVersion: expected 1 (migrate older documents explicitly)");
 
   const target = record(raw.target) ? raw.target : {};
-  rejectUnknownKeys(target, ["os", "arch", "distro", "osVersion", "distroVersion"], "target", issues);
-  if (!TARGET_OS.includes(target.os as (typeof TARGET_OS)[number])) issues.push("target.os: expected windows, macos, or linux");
+  rejectUnknownKeys(target, ["os", "arch", "distro", "osVersion", "distroVersion", "environment", "hostOS", "wslVersion"], "target", issues);
+  if (!TARGET_OS.includes(target.os as (typeof TARGET_OS)[number])) issues.push("target.os: expected windows, macos, or linux (the command execution OS)");
+  if (target.environment !== undefined && target.environment !== "native" && target.environment !== "wsl") issues.push("target.environment: expected native or wsl");
+  if (target.environment === "wsl") {
+    if (target.os !== "linux") issues.push("target.os: WSL execution targets must use linux");
+    if (target.hostOS !== "windows") issues.push("target.hostOS: WSL requires windows");
+    if (target.wslVersion !== 1 && target.wslVersion !== 2) issues.push("target.wslVersion: WSL targets require version 1 or 2");
+  } else {
+    if (target.hostOS !== undefined) issues.push("target.hostOS: only valid when target.environment is wsl");
+    if (target.wslVersion !== undefined) issues.push("target.wslVersion: only valid when target.environment is wsl");
+  }
   if (!ARCHES.includes(target.arch as Architecture)) issues.push("target.arch: expected x64 or arm64");
   if (target.os === "linux" && !DISTROS.includes(target.distro as LinuxDistro)) {
     issues.push("target.distro: Linux targets require debian, ubuntu, fedora, rhel, or arch");
@@ -136,6 +145,7 @@ export function parseAtlasConfig(source: string): AtlasConfig {
     schemaVersion: 1,
     target: { os: target.os as AtlasConfig["target"]["os"], arch: target.arch as Architecture,
       ...(target.os === "linux" ? { distro: target.distro as LinuxDistro } : {}),
+      ...(target.environment === "wsl" ? { environment: "wsl" as const, hostOS: "windows" as const, wslVersion: target.wslVersion as WslVersion } : {}),
       ...(typeof target.osVersion === "string" ? { osVersion: target.osVersion } : {}),
       ...(typeof target.distroVersion === "string" ? { distroVersion: target.distroVersion } : {}) },
     capabilities: parsedCapabilities,
