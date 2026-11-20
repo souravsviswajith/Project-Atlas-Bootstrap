@@ -22,12 +22,11 @@ export interface CompatibilityRequest {
 function parseVersion(value: string): ParsedVersion | undefined {
   const match = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(value.trim());
   if (!match) return undefined;
-  return {
-    major: Number(match[1]),
-    minor: Number(match[2] ?? 0),
-    patch: Number(match[3] ?? 0),
-    prerelease: match[4] ? match[4].split(".") : [],
-  };
+  const major = Number(match[1]);
+  const minor = Number(match[2] ?? 0);
+  const patch = Number(match[3] ?? 0);
+  if (![major, minor, patch].every(Number.isSafeInteger)) return undefined;
+  return { major, minor, patch, prerelease: match[4] ? match[4].split(".") : [] };
 }
 
 function compareVersions(left: ParsedVersion, right: ParsedVersion): number {
@@ -60,9 +59,9 @@ function upperBound(operator: "^" | "~", version: ParsedVersion, source: string)
     if (componentCount === 1) { result.major += 1; result.minor = 0; }
     else result.minor += 1;
     result.patch = 0;
-  } else if (result.major > 0) {
+  } else if (result.major > 0 || componentCount === 1) {
     result.major += 1; result.minor = 0; result.patch = 0;
-  } else if (result.minor > 0) {
+  } else if (result.minor > 0 || componentCount === 2) {
     result.minor += 1; result.patch = 0;
   } else {
     result.patch += 1;
