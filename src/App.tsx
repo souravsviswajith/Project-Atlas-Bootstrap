@@ -11,10 +11,10 @@ import {
   ShieldCheck,
   X,
 } from "lucide-react";
-import { phases, totalItemCount, type Phase } from "./data/phases";
+import { phases, getPhasesForTarget, totalItemCount, type Phase } from "./data/phases";
 import { capabilityRegistry } from "./core/registry";
 import { createPlan } from "./core/planner";
-import type { Architecture, AtlasPlan, LinuxDistro, TargetOS } from "./core/types";
+import type { Architecture, AtlasPlan, LinuxDistro, TargetOS, WslVersion } from "./core/types";
 import { useProgress } from "./hooks/useProgress";
 import Sidebar from "./components/Sidebar";
 import ChecklistItemRow from "./components/ChecklistItemRow";
@@ -30,10 +30,13 @@ export default function App() {
   const [targetOs, setTargetOs] = useState<TargetOS>("windows");
   const [targetArch, setTargetArch] = useState<Architecture>("x64");
   const [linuxDistro, setLinuxDistro] = useState<LinuxDistro>("ubuntu");
+  const [linuxEnvironment, setLinuxEnvironment] = useState<"native" | "wsl">("native");
+  const [wslVersion, setWslVersion] = useState<WslVersion>(2);
   const [selectedCapabilities, setSelectedCapabilities] = useState<string[]>(["python.cpython", "javascript.node", "git.git"]);
   const [previewPlan, setPreviewPlan] = useState<AtlasPlan | null>(null);
 
-  const activePhase = useMemo(() => phases.find((p) => p.id === activeId)!, [activeId]);
+  const visiblePhases = useMemo(() => getPhasesForTarget(targetOs), [targetOs]);
+  const activePhase = useMemo(() => visiblePhases.find((p) => p.id === activeId) ?? visiblePhases[0], [activeId, visiblePhases]);
 
   const progressFor = (phase: Phase) => {
     const ids = phaseItemIds(phase);
@@ -59,7 +62,7 @@ export default function App() {
 
   const buildPreview = () => {
     const target = targetOs === "linux"
-      ? { os: targetOs, arch: targetArch, distro: linuxDistro }
+      ? { os: targetOs, arch: targetArch, distro: linuxDistro, ...(linuxEnvironment === "wsl" ? { environment: "wsl" as const, hostOS: "windows" as const, wslVersion } : {}) }
       : targetOs === "windows"
         ? { os: targetOs, arch: targetArch, osVersion: "11" }
         : { os: targetOs, arch: targetArch };
@@ -157,7 +160,7 @@ export default function App() {
             mobileNavOpen ? "block" : "hidden"
           } fixed inset-0 z-20 overflow-y-auto bg-slate-950 p-4 pt-4 lg:sticky lg:top-20 lg:block lg:h-[calc(100vh-6rem)] lg:w-72 lg:shrink-0 lg:bg-transparent lg:p-0`}
         >
-          <Sidebar phases={phases} activeId={activeId} onSelect={goTo} progressFor={progressFor} />
+          <Sidebar phases={visiblePhases} activeId={activeId} onSelect={goTo} progressFor={progressFor} />
 
           <div className="mt-6 rounded-xl border border-slate-800 bg-slate-900/40 p-4">
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">Reference</p>
@@ -192,7 +195,7 @@ export default function App() {
               <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-800/70 bg-amber-950/40 px-3 py-1 text-xs font-medium text-amber-300"><Info size={13} /> No installations run</span>
             </div>
 
-            <div className="mt-5 grid gap-3 sm:grid-cols-3">
+            <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <label className="text-xs font-medium text-slate-400">Target operating system
                 <select value={targetOs} onChange={(event) => setTargetOs(event.target.value as TargetOS)} className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus-visible:outline-2 focus-visible:outline-indigo-400">
                   <option value="windows">Windows 11</option><option value="macos">macOS</option><option value="linux">Linux</option>
@@ -203,6 +206,16 @@ export default function App() {
                   <option value="x64">x64 / AMD64</option><option value="arm64">ARM64</option>
                 </select>
               </label>
+              {targetOs === "linux" && <label className="text-xs font-medium text-slate-400">Execution environment
+                <select value={linuxEnvironment} onChange={(event) => setLinuxEnvironment(event.target.value as "native" | "wsl")} className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus-visible:outline-2 focus-visible:outline-indigo-400">
+                  <option value="native">Native Linux</option><option value="wsl">WSL on Windows</option>
+                </select>
+              </label>}
+              {targetOs === "linux" && linuxEnvironment === "wsl" && <label className="text-xs font-medium text-slate-400">WSL version
+                <select value={wslVersion} onChange={(event) => setWslVersion(Number(event.target.value) as WslVersion)} className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus-visible:outline-2 focus-visible:outline-indigo-400">
+                  <option value={1}>WSL 1</option><option value={2}>WSL 2</option>
+                </select>
+              </label>}
               {targetOs === "linux" && <label className="text-xs font-medium text-slate-400">Linux distribution family
                 <select value={linuxDistro} onChange={(event) => setLinuxDistro(event.target.value as LinuxDistro)} className="mt-1 block w-full rounded-lg border border-slate-700 bg-slate-950 px-3 py-2 text-sm text-white focus-visible:outline-2 focus-visible:outline-indigo-400">
                   <option value="ubuntu">Ubuntu (apt)</option><option value="debian">Debian (apt)</option><option value="fedora">Fedora (dnf)</option><option value="rhel">RHEL (dnf)</option><option value="arch">Arch (pacman)</option>
@@ -226,7 +239,7 @@ export default function App() {
 
             {previewPlan && <div className="mt-5 border-t border-slate-800 pt-4" aria-live="polite">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-semibold text-white">Plan: {previewPlan.steps.length} steps · {previewPlan.target.os}{previewPlan.target.osVersion ? ` ${previewPlan.target.osVersion}` : ""}{previewPlan.target.distro ? ` / ${previewPlan.target.distro}` : ""} · {previewPlan.target.arch}</h3>
+                <h3 className="font-semibold text-white">Plan: {previewPlan.steps.length} steps · {previewPlan.target.os}{previewPlan.target.environment === "wsl" ? ` / WSL ${previewPlan.target.wslVersion} on Windows` : ""}{previewPlan.target.osVersion ? ` ${previewPlan.target.osVersion}` : ""}{previewPlan.target.distro ? ` / ${previewPlan.target.distro}` : ""} · {previewPlan.target.arch}</h3>
                 <span className="text-xs text-slate-500">Generated {new Date(previewPlan.generatedAt).toLocaleString()}</span>
               </div>
               <p className="mt-1 text-xs text-slate-400">Prerequisites are ordered first. “Planned” means a candidate only—not installed, detected, compatible, or verified.</p>
