@@ -1,6 +1,6 @@
 # Atlas Compatibility Engine
 
-**Status:** Proposed implementation contract  
+**Status:** Partially implemented; remaining work is tracked below  
 **Parent contract:** Portable Runtime  
 **Last reviewed:** 2026-11-21
 
@@ -11,6 +11,20 @@ The compatibility engine determines whether a selected set of packages, SDKs, la
 It must resolve the complete selection before installation begins. It must not install a partial selection merely because individual packages appear installable.
 
 The existing planner's dependency traversal and cycle detection are useful foundations. They do not constitute a complete package solver.
+
+## Current implementation boundary
+
+The current branch now includes a deterministic constraint evaluator for declared capability metadata:
+
+- Numeric semantic-version comparisons, conjunctions, caret ranges, tilde ranges, and prerelease ordering.
+- Explicit capability conflict declarations.
+- Dependency version constraints and detection of incompatible intersections.
+- Architecture restrictions when a capability explicitly declares them.
+- Structured error and warning diagnostics surfaced in the plan preview.
+- Plans containing hard compatibility errors are blocked from authorization.
+
+This is not yet a complete package resolver. The existing catalogue does not provide authoritative version candidate sets, per-version architecture/ABI matrices, or verified provider availability. When a dependency constraint exists but no exact dependency version is pinned, Atlas emits a warning rather than pretending it has resolved a candidate. Provider mappings remain candidate metadata and no package manager is invoked.
+
 
 ## 2. Separate catalogue facts from executable providers
 
