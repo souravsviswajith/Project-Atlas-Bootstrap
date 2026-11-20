@@ -1,3 +1,5 @@
+import type { TargetOS } from "../core/types";
+
 export interface ChecklistItem {
   id: string;
   label: string;
@@ -533,6 +535,27 @@ export const phases: Phase[] = [
     ],
   },
 ];
+
+/**
+ * Hide Windows package-manager and environment commands on non-Windows execution targets.
+ * The remaining checklist is guidance, not a detected or verified host state.
+ */
+export function getPhasesForTarget(os: TargetOS): Phase[] {
+  if (os === "windows") return phases;
+  const windowsOnlyCommand = /\\bwinget\\b|\\bsetx\\b|^clip\\s|[A-Za-z]:\\\\/i;
+  return phases.map((phase) => ({
+    ...phase,
+    sections: phase.sections.map((section) => ({
+      ...section,
+      items: section.items.map((item) => {
+        const commands = (item.commands ?? []).filter((command) => !windowsOnlyCommand.test(command));
+        if (commands.length === (item.commands ?? []).length) return item;
+        const note = "Windows-specific command(s) hidden for this target. Use the vendor's official instructions for this OS; remaining commands are verification or shell-neutral steps.";
+        return { ...item, commands: commands.length ? commands : undefined, note: item.note ? `${item.note} ${note}` : note };
+      }),
+    })),
+  }));
+}
 
 export const totalItemCount = phases.reduce(
   (sum, phase) => sum + phase.sections.reduce((s, sec) => s + sec.items.length, 0),
