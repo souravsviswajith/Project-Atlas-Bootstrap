@@ -37,14 +37,11 @@ export interface ProviderOption {
 }
 
 export type CapabilityCategory = "language" | "runtime" | "package-manager" | "toolchain" | "editor" | "cloud" | "container" | "database" | "shell" | "configuration" | "mobile" | "hardware";
-export type CapabilityPack = "core-languages" | "hardware";
 
 export interface Capability {
   id: string;
   name: string;
   category: CapabilityCategory;
-  /** Optional pack membership for curated install bundles; independent of capability category. */
-  pack?: CapabilityPack;
   language?: string;
   description: string;
   platforms: Partial<Record<TargetOS, ProviderOption[]>>;
