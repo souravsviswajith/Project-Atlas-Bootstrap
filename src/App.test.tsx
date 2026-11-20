@@ -39,6 +39,21 @@ describe("Atlas plan UI", () => {
     expect(screen.getAllByText(/Provider candidate: apt/).length).toBeGreaterThan(0);
   });
 
+  it("adds the curated language and hardware packs to the preview selection", async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    await user.click(screen.getByText(/Select from \d+ catalogued capabilities/i));
+    await user.click(screen.getByRole("button", { name: /Add Core Languages pack/i }));
+    await user.click(screen.getByRole("button", { name: /Add Hardware layer/i }));
+    await user.click(screen.getByRole("button", { name: /Generate deterministic preview/i }));
+    expect(screen.getByText("C compiler toolchain")).toBeTruthy();
+    expect(screen.getByText("C#")).toBeTruthy();
+    expect(screen.getByText("SQLFluff (SQL lint and format)")).toBeTruthy();
+    expect(screen.getByText("PHP CLI runtime")).toBeTruthy();
+    expect(screen.getByText("NASM assembler")).toBeTruthy();
+    expect(screen.getByText("LLVM AArch64 assembler")).toBeTruthy();
+  });
+
   it("provides keyboard-operable phase navigation and labelled checklist controls", async () => {
     const user = userEvent.setup();
     render(<App />);
