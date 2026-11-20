@@ -44,6 +44,12 @@ export interface Capability {
   description: string;
   platforms: Partial<Record<TargetOS, ProviderOption[]>>;
   dependencies: string[];
+  /** Ecosystem-aware version constraints keyed by dependency capability ID. */
+  dependencyConstraints?: Record<string, string>;
+  /** Explicit mutual-exclusion metadata; absent means no conflict is asserted. */
+  conflicts?: string[];
+  /** Declared architecture support; absent means the catalogue has not constrained it. */
+  supportedArchitectures?: Architecture[];
   versionPolicy: "stable" | "lts" | "user-selected" | "bundled" | "system";
   detection: { executable: string; versionArgs: string[] };
   verification: string;
@@ -73,6 +79,14 @@ export interface PlanStep {
   verification: string;
 }
 
+export interface CompatibilityIssue {
+  code: "declared-conflict" | "dependency-version-mismatch" | "unsatisfiable-version-constraints" | "version-unresolved" | "unsupported-architecture";
+  severity: "error" | "warning";
+  capabilityIds: string[];
+  message: string;
+  remediation: string;
+}
+
 export interface AtlasPlan {
   schemaVersion: 1;
   mode: "preview";
@@ -80,5 +94,6 @@ export interface AtlasPlan {
   generatedAt: string;
   steps: PlanStep[];
   errors: string[];
+  compatibilityIssues: CompatibilityIssue[];
   hasMutations: false;
 }
