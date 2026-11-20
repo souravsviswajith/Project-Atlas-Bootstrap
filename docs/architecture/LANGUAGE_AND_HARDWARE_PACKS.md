@@ -48,6 +48,7 @@ The capability registry is an inventory of what Atlas may be able to provision. 
 - Maven and Gradle are independent alternatives; project wrappers take precedence.
 - Ninja is independent of CMake. A project may use Ninja without CMake or CMake with another generator.
 - SQLFluff is a SQL linter/formatter, not a database engine or SQL runtime.
+- PHP is conservatively x64-only in the current global architecture model. Official PHP documentation states that Windows PHP does not currently run on Windows on ARM; ARM64 support must not be inferred for Windows. Enable ARM64 for other operating systems only after replacing the global architecture flag with a provider/OS-specific support matrix.
 - Assembly is a hardware/toolchain capability selected for an explicit architecture and object format.
 
 ## 4. Resolution and execution contract
