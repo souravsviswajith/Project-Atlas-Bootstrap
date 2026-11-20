@@ -1,4 +1,5 @@
 import { capabilityRegistry } from "./registry";
+import { evaluateCompatibility } from "./compatibility";
 import type { AtlasConfig, AtlasPlan, Capability, PlanStep, ProviderOption, TargetPlatform } from "./types";
 
 export class PlanningError extends Error {
@@ -46,6 +47,17 @@ export function createPlan(config: AtlasConfig, now: Date = new Date(), registry
   for (const id of [...roots.keys()].sort()) visit(id, []);
   if (errors.length) throw new PlanningError(errors);
 
+  const compatibilityIssues = evaluateCompatibility(order, config.capabilities, registry, config.target.arch);
+  const blockingIssuesByCapability = new Map<string, string[]>();
+  for (const issue of compatibilityIssues) {
+    if (issue.severity !== "error") continue;
+    for (const id of issue.capabilityIds) {
+      const messages = blockingIssuesByCapability.get(id) ?? [];
+      messages.push(issue.message);
+      blockingIssuesByCapability.set(id, messages);
+    }
+  }
+
   const requiredIds = new Set<string>();
   const markRequired = (id: string) => {
     if (requiredIds.has(id)) return;
@@ -66,10 +78,14 @@ export function createPlan(config: AtlasConfig, now: Date = new Date(), registry
       return priorStep?.state === "unavailable" || priorStep?.state === "blocked";
     });
     const optional = !requiredIds.has(id);
+    const blockingIssues = blockingIssuesByCapability.get(id) ?? [];
     const step: PlanStep = unavailableDependency
       ? { capabilityId: id, name: capability.name, state: "blocked", requestedVersion: requested?.version,
           reason: `Blocked because prerequisite '${unavailableDependency}' is unavailable.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
-      : !provider
+      : blockingIssues.length
+        ? { capabilityId: id, name: capability.name, state: "blocked", requestedVersion: requested?.version,
+            reason: blockingIssues.join(" "), dependencies: [...capability.dependencies], optional, verification: capability.verification }
+        : !provider
         ? { capabilityId: id, name: capability.name, state: "unavailable", requestedVersion: requested?.version,
             reason: (config.target.arch === "x86" || config.target.arch === "arm32")
               ? `No provider has a verified ${config.target.arch} architecture mapping yet.`
@@ -80,7 +96,7 @@ export function createPlan(config: AtlasConfig, now: Date = new Date(), registry
     stepsById.set(id, step);
   }
 
-  return { schemaVersion: 1, mode: "preview", target: config.target, generatedAt: now.toISOString(), steps, errors, hasMutations: false };
+  return { schemaVersion: 1, mode: "preview", target: config.target, generatedAt: now.toISOString(), steps, errors, compatibilityIssues, hasMutations: false };
 }
 
 export interface ExecutionAuthorization { approved: boolean; confirmationText?: string }
@@ -100,6 +116,7 @@ export function authorizePlan(plan: AtlasPlan, authorization: ExecutionAuthoriza
   if (!authorization.approved || authorization.confirmationText !== "APPLY ATLAS PLAN") {
     throw new Error("Execution denied: explicit authorization phrase is required.");
   }
+  if (plan.compatibilityIssues.some((issue) => issue.severity === "error")) throw new Error("Execution denied: compatibility constraints are not satisfied.");
   if (plan.steps.some((step) => step.state !== "planned")) throw new Error("Execution denied: plan contains unavailable or blocked capabilities.");
   return { schemaVersion: 1, mode: "apply", target: plan.target, steps: plan.steps, authorizedAt: now.toISOString(), hasMutations: true };
 }
