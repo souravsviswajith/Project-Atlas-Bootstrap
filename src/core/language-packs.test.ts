@@ -53,6 +53,19 @@ describe("artifact-driven toolchain profiles", () => {
     expect(plan.hasMutations).toBe(false);
   });
 
+  it("rejects empty plans even when the confirmation phrase is supplied", () => {
+    const plan = createPlan({
+      schemaVersion: 1,
+      target: { os: "linux", distro: "ubuntu", arch: "x64" },
+      capabilities: [],
+      policy: { mode: "preview", requireAuthorization: true },
+      verification: { required: true },
+      reporting: { format: "json" },
+    });
+    expect(() => authorizePlan(plan, { approved: true, confirmationText: "APPLY ATLAS PLAN" }))
+      .toThrow(/empty plans/);
+  });
+
   it("does not authorize catalogue-only capabilities for execution", () => {
     const plan = createPlan({
       schemaVersion: 1,
