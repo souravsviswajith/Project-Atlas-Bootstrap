@@ -17,7 +17,10 @@ function providerFor(capability: Capability, target: TargetPlatform): ProviderOp
   if (target.os !== "linux") return options[0];
   const manager = target.distro === "debian" || target.distro === "ubuntu" ? "apt"
     : target.distro === "fedora" || target.distro === "rhel" ? "dnf" : target.distro === "arch" ? "pacman" : undefined;
-  return options.find((option) => option.manager === manager);
+  // Some upstream toolchains are distributed as signed vendor archives rather than through
+  // every distro's native package manager. Keep those explicit manual candidates selectable.
+  return options.find((option) => option.manager === manager)
+    ?? options.find((option) => option.manager === "manual");
 }
 
 /** Deterministic topological preview. This function only reads registry/config data. */
