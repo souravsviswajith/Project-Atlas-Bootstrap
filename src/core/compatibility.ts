@@ -70,8 +70,8 @@ function upperBound(operator: "^" | "~", version: ParsedVersion, source: string)
 }
 
 function parseRange(range: string): Comparator[] | undefined {
-  const normalized = range.trim().replace(/(>=|>|<=|<|=|\\^|~)\\s+/g, "$1");
-  const terms = normalized.split(/\\s+/).filter(Boolean);
+  const normalized = range.trim().replace(/(>=|>|<=|<|=|\^|~)\s+/g, "$1");
+  const terms = normalized.split(/\s+/).filter(Boolean);
   if (!terms.length) return undefined;
   const comparators: Comparator[] = [];
   for (const term of terms) {
