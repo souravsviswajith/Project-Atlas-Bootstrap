@@ -121,6 +121,7 @@ export function authorizePlan(plan: AtlasPlan, authorization: ExecutionAuthoriza
   }
   if (plan.compatibilityIssues.some((issue) => issue.severity === "error" || issue.code === "version-unresolved")) throw new Error("Execution denied: compatibility constraints or version resolution are incomplete.");
   if (plan.steps.some((step) => step.state !== "planned")) throw new Error("Execution denied: plan contains unavailable or blocked capabilities.");
+  if (plan.steps.some((step) => capabilityRegistry.find((capability) => capability.id === step.capabilityId)?.implementation !== "verified-provider")) throw new Error("Execution denied: one or more capabilities are catalogue-only and have no verified executable provider.");
   return { schemaVersion: 1, mode: "apply", target: plan.target, steps: plan.steps, authorizedAt: now.toISOString(), hasMutations: true };
 }
 
