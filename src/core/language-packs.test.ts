@@ -21,8 +21,10 @@ describe("curated language and hardware packs", () => {
         category: "hardware",
         pack: "hardware",
         language: "Assembly",
-        supportedArchitectures: ["x64", "arm64"],
       });
+      expect(capability?.supportedArchitectures).toEqual(
+        id === "hardware.assembly" ? ["x64"] : ["arm64"],
+      );
     }
   });
 
