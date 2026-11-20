@@ -575,7 +575,7 @@ tool_families:
       - "kind"
       - "minikube"
       - "k3d"
-      - " kubectx and kubens"
+      - "kubectx and kubens"
       - "Skaffold"
       - "Tilt"
       - "Argo CD CLI"
