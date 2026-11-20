@@ -1,50 +1,84 @@
-# Core language and hardware packs
+# Atlas core build and artifact toolchains
 
-**Status:** catalogued capability contracts; provider execution remains unimplemented.
+**Status:** architecture contract and planning metadata. Native provisioning is not implemented.
 
-## Core Languages pack
+## 1. Atlas application build stack
 
-The curated pack includes:
+Atlas's own implementation stack is separate from the toolchains it provisions for user projects.
 
-| Language / toolchain | Atlas capability |
-|---|---|
-| C | `c.compiler` |
-| C++ | `cpp.compiler` |
-| Java | `java.jdk`, `java.maven`, `java.gradle` |
-| C# | `csharp.dotnet` |
-| SQL | `sql.fluff` |
-| Python | `python.cpython`, `python.pip`, `python.venv`, `python.uv`, `python.conda` |
-| Rust | `rust.rustup`, `rust.stable` |
-| CMake | `cpp.cmake` |
-| PHP | `php.runtime`, `php.composer` |
+| Layer | Technology | Responsibility | Current status |
+|---|---|---|---|
+| Native core | Rust | CLI, native engine, platform adapters, compatibility, execution boundary | Target architecture; native core not yet present in this frontend-only branch |
+| Application UI | TypeScript | Typed UI, frontend and application orchestration | Current Vite/React frontend |
+| Persistence | SQL | Relational workspace state, metadata, manifests and migrations | Target architecture; database adapter and schema migration runtime not yet implemented |
 
-CMake is a build-system generator, not a programming language. It is included in the curated pack because it is a core native build tool. SQLFluff provides SQL linting/formatting; database engines, servers, clients, and drivers remain separate capabilities. Java build tools are optional prerequisites, not forced global installs.
+SQL is the persistence/query contract, not a database server. The concrete embedded/database engine is deliberately not selected by this profile. A local-first embedded engine can be evaluated separately; it must not be mistaken for the SQL language itself.
 
-## Hardware layer
+The Atlas core profile is not an end-user install pack. Selecting or building Atlas must not cause unrelated C, C++, Java, Python, PHP or Assembly SDKs to be installed globally.
 
-Assembly is a hardware/toolchain capability, not part of the general-purpose language runtime pack:
+## 2. Artifact-driven toolchain provisioning
 
-- `hardware.assembly`: NASM for x86-family source targeting x64. It does not claim 16-bit DOS support.
-- `hardware.assembly.arm64`: LLVM integrated assembler tooling for AArch64/ARM64.
+Toolchains are requested by an artifact or workspace manifest. A profile represents minimum known requirements, not an unconditional complete build environment.
 
-Assembler syntax, target triple, ABI, relocation model, and object format must be explicit. NASM, GNU as, MASM, and LLVM integrated assembler are not interchangeable. A source file that assembles for one target does not imply portability to another.
+| Artifact profile | Minimum declared capabilities | Not automatically included |
+|---|---|---|
+| Rust CLI/application | rustup, Rust stable/Cargo | Cross-linker, target SDK, C compiler unless target requires it |
+| C native application | C compiler | CMake, Ninja, debugger, SDK unless declared |
+| C++ native application | C++ compiler | CMake, Ninja, debugger, SDK unless declared |
+| Java application | JDK | Maven/Gradle unless project uses them; project wrapper takes precedence |
+| .NET/C# application | .NET SDK | Additional workloads and target packs unless required |
+| Python application | CPython | uv, Conda, pip/venv separately when bundled or project manifest requires them |
+| PHP application | PHP CLI | Composer unless project uses it |
+| PHP + Composer | PHP CLI, Composer | Web server and extensions unless declared |
+| TypeScript application | Node.js, TypeScript | Other package managers unless package.json selects them |
+| SQL lint/format | SQLFluff | Python isolated runtime and dialect support resolved by its provider adapter; no database server |
+| CMake native project | C++ compiler, CMake | Ninja is independent and only selected when the project requests it |
+| x86-64 Assembly | NASM | Linker, SDK and execution target are separate |
+| AArch64 Assembly | LLVM integrated assembler | Linker, SDK and execution target are separate |
 
-## Portability and installation contract
+Profiles are starting points. Project manifests, lockfiles, build scripts, target triples and declared SDK requirements are authoritative. Atlas must add only the transitive dependencies actually required by the selected artifact.
 
-A language pack is a selection bundle, not a universal binary. Atlas must resolve every selected capability against the explicit target OS, distribution, architecture, ABI, runtime, and requested version. It must reject unsupported combinations before producing an install plan.
+## 3. Capability inventory versus install selection
 
-For a portable Atlas application artifact:
+The capability registry is an inventory of what Atlas may be able to provision. It is not an install bundle. The UI must not provide a one-click “install every language” action.
 
-1. Ship the Atlas application runtime and its own dependencies in the application bundle; do not assume a globally installed Node.js runtime.
-2. Keep language SDKs/toolchains as separately versioned, target-specific payloads. Do not bundle every compiler into the base application.
-3. Publish only artifacts built and smoke-tested for their declared OS/architecture. Include checksums, signed provenance, SBOM, and release attestations.
-4. Support offline use through a content-addressed cache of verified artifacts and metadata. Report cache misses; never silently fall back to network access.
-5. Preserve project-native manifests and lockfiles. Resolve ecosystem-specific version schemes with ecosystem-specific adapters rather than coercing all versions into SemVer.
-6. Verify installed compiler/runtime paths and versions with non-mutating probes, then compile/build a minimal fixture in an isolated workspace.
-7. Require explicit approval for privileged operations and host-wide environment changes.
+- Artifact profile selection adds only its declared minimum capabilities.
+- Users can explicitly add optional build tools, package managers, debuggers, database clients and SDKs.
+- Bundled components (for example, pip/venv with a CPython distribution, or npm with a Node distribution) must not be treated as independent global installs without evidence that the selected provider separates them.
+- Maven and Gradle are independent alternatives; project wrappers take precedence.
+- Ninja is independent of CMake. A project may use Ninja without CMake or CMake with another generator.
+- SQLFluff is a SQL linter/formatter, not a database engine or SQL runtime.
+- Assembly is a hardware/toolchain capability selected for an explicit architecture and object format.
 
-## Current implementation boundary
+## 4. Resolution and execution contract
 
-These entries are capability catalogue and preview-plan metadata only. The current Atlas branch does not download or install these toolchains, verify publisher signatures, detect live host architecture/ABI, or execute compile probes. Provider names are candidates and must be verified against upstream release matrices before any native adapter is enabled.
+Before provisioning, Atlas must:
 
-The current planner intentionally fails closed for x86 and ARM32 because there is no verified per-capability 32-bit provider matrix. 16-bit DOS remains deferred. The two Assembly entries currently declare x64 and ARM64 separately; neither implies support for other architectures.
+1. Identify the artifact type and read its native manifest/build configuration.
+2. Separate build host, installation target and compiler output target.
+3. Resolve OS release, architecture, ABI/libc, target triple, compiler, linker, SDK and object format where applicable.
+4. Query ecosystem-specific resolvers (Cargo, NuGet, Maven/Gradle, PyPI/Conda, Composer, Conan/vcpkg, etc.) instead of imposing one universal version solver.
+5. Resolve exact versions and transitive dependency closure; preserve native lockfiles.
+6. Validate provider identity, release support, artifact hash, signature/provenance, license and privilege requirements.
+7. Produce a deterministic plan and preflight report before any host mutation.
+8. Require explicit approval for privileged operations and host-wide environment changes.
+9. Verify installed paths/versions and build a minimal fixture in an isolated workspace.
+10. Support offline replay from a content-addressed cache of verified artifacts.
+
+A plan-only catalogue entry must never be treated as an executable provider. The current branch remains preview-only and does not download, install, sign-verify, probe or mutate the host.
+
+## 5. Hardware and cross-compilation
+
+Assembly support is not implied by the host architecture. The artifact must identify assembler family/syntax, output architecture, target triple, ABI, relocation model, object format and linker.
+
+- NASM entry: x86-64 only in the current catalogue.
+- LLVM integrated assembler entry: AArch64/ARM64 with explicit target triple.
+- 16-bit DOS remains deferred from the current Atlas V1 scope.
+- Rust cross-compilation requires the target standard library plus a compatible linker and target SDK; adding a Rust target alone is insufficient.
+- C/C++ cross-compilation requires a matching compiler, sysroot/toolchain file, linker and SDK.
+
+## 6. Current implementation boundary
+
+This PR updates the capability model, artifact presets and UI selection semantics only. It does not add the Rust native runtime, SQL migration engine, native package providers, artifact cache, installer, code signing or release pipeline. The checked-in application remains a TypeScript/Vite frontend.
+
+Provider package names and architecture claims remain provisional until verified against upstream platform/release matrices. Do not report a capability as installed, detected or verified based on a preview plan.
