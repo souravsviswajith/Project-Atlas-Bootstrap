@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { capabilityRegistry } from "./registry";
+import { assertRegistryIntegrity, capabilityRegistry } from "./registry";
 import { authorizePlan, createPlan } from "./planner";
 import { satisfiesVersion, versionConstraintsOverlap } from "./compatibility";
 import type { AtlasConfig, Capability } from "./types";
@@ -57,6 +57,24 @@ describe("semantic version constraints", () => {
     expect(versionConstraintsOverlap([">2", "<=2"])).toBe(false);
     expect(versionConstraintsOverlap(["^1.2.0", ">=1.8 <2"])).toBe(true);
     expect(versionConstraintsOverlap(["^1.2.0", ">=2"])).toBe(false);
+  });
+});
+
+describe("capability compatibility metadata", () => {
+  it("rejects undeclared conflict targets and invalid dependency constraints", () => {
+    const unknownConflict = makeCapability("test.unknown-conflict", { conflicts: ["test.missing"] });
+    expect(() => assertRegistryIntegrity([unknownConflict])).toThrow(/Unknown conflict/);
+
+    const invalidRange = makeCapability("test.invalid-range", {
+      dependencies: [dependency.id],
+      dependencyConstraints: { [dependency.id]: ">=3 <2" },
+    });
+    expect(() => assertRegistryIntegrity([invalidRange, dependency])).toThrow(/Invalid or unsatisfiable version constraint/);
+
+    const misplacedRange = makeCapability("test.misplaced-range", {
+      dependencyConstraints: { [dependency.id]: ">=2" },
+    });
+    expect(() => assertRegistryIntegrity([misplacedRange, dependency])).toThrow(/non-dependency/);
   });
 });
 
