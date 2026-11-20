@@ -18,10 +18,13 @@ The current branch now includes a deterministic constraint evaluator for declare
 
 - Numeric semantic-version comparisons, conjunctions, caret ranges, tilde ranges, and prerelease ordering.
 - Explicit capability conflict declarations.
+- Capability metadata is expressed through optional `conflicts`, SemVer-only `dependencyConstraints`, and `supportedArchitectures` fields. Registry integrity checks validate references and range satisfiability.
 - Dependency version constraints and detection of incompatible intersections.
 - Architecture restrictions when a capability explicitly declares them.
 - Structured error and warning diagnostics surfaced in the plan preview.
 - Plans containing hard compatibility errors are blocked from authorization.
+
+The current range evaluator is deliberately limited to SemVer-style numeric versions. Python/PEP 440, Debian, RPM, Maven, Conda, and other ecosystem version schemes must be handled by their ecosystem adapters; do not feed those versions into the SemVer evaluator.
 
 This is not yet a complete package resolver. The existing catalogue does not provide authoritative version candidate sets, per-version architecture/ABI matrices, or verified provider availability. When a dependency constraint exists but no exact dependency version is pinned, Atlas emits a warning rather than pretending it has resolved a candidate. Provider mappings remain candidate metadata and no package manager is invoked.
 
