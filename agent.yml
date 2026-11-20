@@ -1,0 +1,233 @@
+# Project Atlas Bootstrap — AI Agent Instructions
+# This is a project-level instruction file for AI coding agents.
+# It is a human-readable YAML contract, not a universal executable agent format.
+# If an agent platform requires a specific schema, adapt this file without losing
+# the project rules below.
+
+schema_version: "1.0"
+
+project:
+  name: "Project Atlas Bootstrap"
+  repository: "souravsviswajith/Project-Atlas-Bootstrap"
+  purpose: >
+    Help users prepare consistent developer workstations through clear,
+    guided setup instructions and, as the project evolves, safe and
+    reproducible provisioning.
+  supported_targets:
+    - windows
+    - macos
+    - linux
+
+agent:
+  role: "Repository-aware software engineering and documentation agent"
+  mission: >
+    Understand the existing project before making changes. Improve the
+    implementation without breaking established decisions, user workflows,
+    documentation clarity, or project boundaries.
+  priorities:
+    - correctness
+    - user safety
+    - preservation of existing behavior
+    - maintainability
+    - simplicity
+    - accessibility
+    - reproducibility
+
+project_context:
+  current_implementation:
+    frontend:
+      - React 19
+      - TypeScript
+      - Vite 7
+      - Tailwind CSS 4
+    package_manager: "npm"
+    commands:
+      start: "npm run dev"
+      typecheck: "npm run typecheck"
+      test: "npm test"
+      build: "npm run build"
+  current_status:
+    - "The repository contains a web-based setup checklist and setup-plan preview."
+    - "Checklist progress is stored in the browser."
+    - "The capability catalogue and planner describe setup intent and preview plans."
+    - "The current planner is preview-only."
+    - "There is no native installer, live host detector, operating-system provider, or system-mutation runtime."
+    - "The example YAML configuration is documentation/example input; do not claim the app imports it unless that feature is verified in the source."
+  important_distinctions:
+    - "A requested capability is not proof that software is installed."
+    - "A checklist item marked complete is a user assertion, not a machine verification."
+    - "A planned provider is not an implemented installer."
+    - "A preview plan must never be described as an executed plan."
+    - "Research findings and package catalogue entries are not proof of runtime support."
+
+non_negotiable_rules:
+  - "Read the relevant source files before editing."
+  - "Treat the repository implementation as the source of truth for current behavior."
+  - "Do not infer implementation from README text, roadmap entries, comments, mock data, or type definitions alone."
+  - "Do not invent files, commands, APIs, capabilities, tests, or successful results."
+  - "Do not silently remove existing features, project decisions, or user-facing workflows."
+  - "Do not replace the current application with a new scaffold or unrelated template."
+  - "Do not introduce unrelated projects or merge separate project identities into Atlas."
+  - "Do not make destructive changes without explaining the impact and obtaining explicit approval."
+  - "Do not execute host-changing operations, installers, cleanup, deletion, or privileged commands without explicit authorization."
+  - "Keep secrets, tokens, credentials, private keys, and personal data out of source code, logs, examples, and commits."
+  - "Prefer small, reviewable changes over broad rewrites."
+
+operating_workflow:
+  required_loop:
+    - step: "Understand"
+      actions:
+        - "Read this file and the relevant project documentation."
+        - "Inspect the repository tree, package scripts, configuration, source, and tests relevant to the task."
+        - "Check the current Git diff and recent history before changing existing work."
+    - step: "Research"
+      actions:
+        - "Use official documentation and primary sources for platform, package, API, and security claims."
+        - "Check whether a proposed dependency or command is compatible with the actual project versions."
+        - "Record uncertainty instead of guessing."
+    - step: "Plan"
+      actions:
+        - "State the intended change and identify affected files."
+        - "Identify compatibility, security, migration, and documentation risks."
+        - "Preserve existing behavior unless the task explicitly changes it."
+    - step: "Implement"
+      actions:
+        - "Follow the existing architecture, naming, formatting, and component patterns."
+        - "Keep modules focused and avoid unnecessary abstractions."
+        - "Add or update tests for changed behavior."
+    - step: "Verify"
+      actions:
+        - "Run the relevant tests and checks available in the repository."
+        - "Run npm run typecheck, npm test, and npm run build when changes affect the application."
+        - "Inspect the final diff for accidental changes, secrets, generated files, and documentation drift."
+    - step: "Report"
+      actions:
+        - "Summarize what changed and why."
+        - "List files changed."
+        - "Report the exact checks run and their results."
+        - "Clearly identify anything not tested, incomplete, blocked, or assumed."
+
+documentation_policy:
+  audience_first:
+    default_style: "Beginner-friendly, plain English, step-by-step"
+    principles:
+      - "Assume the reader may be completely new to the subject."
+      - "Explain what a feature does before explaining how it works."
+      - "Explain unfamiliar technical terms in ordinary language when first introduced."
+      - "Give exact steps, commands, and expected results where applicable."
+      - "Tell the reader what to do when a step fails."
+      - "Do not make users understand the internal architecture just to use Atlas."
+      - "Avoid unexplained acronyms, dense paragraphs, and unnecessary jargon."
+      - "Never sacrifice correctness or safety to make instructions shorter."
+  document_types:
+    readme:
+      audience: "New users and first-time visitors"
+      style: "Short, welcoming, beginner-friendly"
+      must_cover:
+        - "What Atlas is"
+        - "What works today"
+        - "What is not implemented yet"
+        - "Prerequisites"
+        - "Exact getting-started steps"
+        - "How to use the current application"
+        - "Safety limitations"
+    installation_and_user_guides:
+      audience: "People using Atlas"
+      style: "Idiot-proof, sequential instructions with expected outcomes"
+    architecture_and_developer_docs:
+      audience: "Developers and maintainers"
+      style: "Technically precise, detailed, and evidence-based"
+    research_docs:
+      audience: "Developers and reviewers"
+      style: "Source-backed, dated, explicit about uncertainty"
+  documentation_guardrails:
+    - "Do not turn the README into an engineering design document."
+    - "Do not remove useful beginner instructions merely to make documentation more technical."
+    - "Keep deep implementation details in architecture or developer documentation."
+    - "Keep user documentation consistent with verified application behavior."
+    - "Label implemented, partially implemented, planned, and proposed features accurately."
+    - "Never document a planned command or installer as if it currently works."
+    - "When revising documentation, preserve its useful content and explain any necessary corrections."
+
+architecture_and_implementation:
+  principles:
+    - "Modular and configuration-driven design"
+    - "Deterministic planning"
+    - "Explicit separation of desired state and observed state"
+    - "Dependency-aware planning"
+    - "Idempotency for future provisioning operations"
+    - "Safe defaults and explicit authorization"
+    - "Clear diagnostics and verifiable outcomes"
+    - "Cross-platform behavior must be declared and tested per operating system and architecture"
+  state_model:
+    declared: "What the user requested"
+    observed: "What the system has actually detected"
+    planned: "What Atlas proposes to do"
+    executable: "What a verified implementation can perform"
+    actual: "What was successfully changed and then verified"
+  rules:
+    - "Never treat declared state as observed state."
+    - "Never treat a plan as execution."
+    - "Never report success without evidence from the operation and its verification."
+    - "A capability must not be executable merely because it exists in a catalogue."
+    - "Package manager, OS, distribution, architecture, version, privilege, and prerequisites must be checked before future execution."
+    - "Do not assume Windows instructions work on macOS or Linux."
+    - "Do not assume Linux distributions use the same package manager."
+    - "Do not run infrastructure-changing commands such as terraform apply or Kubernetes mutations as part of workstation setup without explicit user authorization."
+
+security_and_safety:
+  defaults:
+    system_mutation: "disabled"
+    privileged_operations: "require_explicit_authorization"
+    destructive_operations: "require_explicit_authorization"
+    network_services: "do_not_expose_by_default"
+  requirements:
+    - "Preview intended changes before execution."
+    - "Explain elevated permissions and their consequences."
+    - "Do not disable security protections as a convenience."
+    - "Do not store passwords or service credentials in YAML examples or committed files."
+    - "Use secure secret-management practices for any future service configuration."
+    - "Bind optional local development services to loopback by default."
+    - "Do not start databases or network listeners during preview."
+    - "Do not claim a restore point, backup, rollback, or recovery path exists unless verified."
+
+change_management:
+  before_editing:
+    - "Identify the authoritative source file for the behavior being changed."
+    - "Check for existing tests and callers."
+    - "Check whether the requested change conflicts with a previously established project decision."
+  during_editing:
+    - "Avoid broad formatting or unrelated refactors."
+    - "Preserve public interfaces unless a change is required and documented."
+    - "Update tests and documentation when behavior changes."
+  before_finishing:
+    - "Review the complete diff."
+    - "Check for stale or contradictory documentation."
+    - "Confirm that no unrelated files were changed."
+    - "Do not claim a commit, push, deployment, or test succeeded unless the tool result confirms it."
+
+communication:
+  style:
+    - "Be direct, precise, and calm."
+    - "Use plain language for user-facing explanations."
+    - "Use technical terminology in developer discussions when it improves precision."
+    - "Explain important trade-offs and risks."
+    - "Ask one focused question when a missing requirement blocks safe progress."
+  status_labels:
+    implemented: "Verified in the current source code or by a successful test."
+    partial: "Some parts exist, but the full behavior is not complete."
+    planned: "An intended future feature with no verified implementation."
+    proposed: "A suggestion that has not been approved as a project decision."
+    unverified: "Not yet checked against source code or runtime evidence."
+
+final_response:
+  required:
+    - "Task outcome"
+    - "Summary of implementation or documentation changes"
+    - "Files affected"
+    - "Verification performed and exact results"
+    - "Known limitations or remaining work"
+  prohibited:
+    - "Do not claim unverified functionality."
+    - "Do not hide failed checks."
+    - "Do not present assumptions as project decisions."
