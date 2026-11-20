@@ -456,6 +456,408 @@ provisioning_catalogue:
     - "Record researched package-manager mappings and official sources in project documentation."
     - "Do not label an item installable until its provider exists and is tested on that OS/version/architecture."
 
+
+# CLEAN-MACHINE BOOTSTRAP CONTRACT
+# A fresh target machine is not a developer machine. Do not require the tools
+# Atlas is meant to install to exist before Atlas can provision them.
+fresh_system_bootstrap:
+  baseline_assumptions:
+    preinstalled_development_tools: []
+    assume_nodejs: false
+    assume_npm: false
+    assume_python: false
+    assume_go: false
+    assume_java_jdk: false
+    assume_git: false
+    assume_docker: false
+    assume_terraform: false
+    assume_cloud_cli: false
+    assume_third_party_package_manager: false
+    assume_admin_or_root_access: false
+    assume_internet_access: false
+    assume_available_disk_space: false
+  rules:
+    - "Treat the target as a clean OS installation unless detection proves otherwise."
+    - "Do not use Node.js, npm, Python, Go, Java, Git, Docker, Terraform, or a cloud CLI as an installer prerequisite when that same tool is part of the requested installation."
+    - "Atlas must be able to bootstrap selected runtimes from a clean system; do not create a circular dependency where installing Node requires Node, installing Go requires Go, or installing Python requires Python."
+    - "Do not assume winget, Chocolatey, Scoop, Homebrew, apt, dnf, yum, pacman, zypper, apk, or any other third-party/package manager exists. Detect and validate the selected provider first."
+    - "Use OS-provided bootstrap capabilities only after checking their presence and version; otherwise use a documented, verified bootstrap path."
+    - "The current React/Vite development workflow requires Node.js and npm, but this is a development prerequisite for running the current web app, not a prerequisite that may be imposed on the target workstation. Keep these two environments distinct."
+    - "If the eventual native provisioning engine itself requires a runtime, either package that runtime with the engine or use a minimal OS-native bootstrapper; never assume the target already has it."
+    - "Check OS edition/release, architecture, privileges, network/TLS access, disk space, existing installations, and reboot requirements before choosing installation actions."
+    - "Bootstrap only the selected package manager or provider needed for the requested software. Do not install several competing package managers by default."
+    - "Show bootstrap dependencies and all additional software in the plan before execution."
+  execution_order:
+    - "Detect operating system, release, architecture, shell, privilege level, and available disk."
+    - "Discover built-in and already-installed package managers and runtimes without changing the machine."
+    - "Resolve the smallest safe bootstrap path for the selected capabilities."
+    - "Install or initialize only the required package provider, with explicit preview and authorization."
+    - "Install foundational selected tools such as Git and language runtimes."
+    - "Install dependent SDKs, DevOps tools, automation tools, cloud CLIs, and optional utilities."
+    - "Apply only explicitly selected configuration steps."
+    - "Verify each installation using its own version/check command and record evidence."
+  platform_bootstrap:
+    windows:
+      native_entrypoint: "Windows PowerShell 5.1 where present; verify before use."
+      package_providers_to_detect:
+        - "Windows Package Manager (winget)"
+        - "Chocolatey"
+        - "Scoop"
+      rules:
+        - "Do not assume winget/App Installer is present or usable on every Windows image."
+        - "Do not install Chocolatey or Scoop merely because winget is unavailable; select a provider according to the approved policy and user choice."
+        - "Use official vendor installers or signed packages when no approved package provider is available."
+        - "Handle UAC elevation and reboot requirements explicitly."
+    macos:
+      native_entrypoint: "Available system shell; verify environment."
+      package_providers_to_detect:
+        - "Homebrew"
+        - "MacPorts"
+      rules:
+        - "Do not assume Homebrew or MacPorts is installed."
+        - "Check Apple Silicon versus Intel architecture and package support."
+        - "Use official vendor installation methods when no approved provider is available."
+    linux:
+      native_entrypoint: "Available system shell; verify environment."
+      package_providers_to_detect:
+        - "apt"
+        - "dnf"
+        - "yum"
+        - "pacman"
+        - "zypper"
+        - "apk"
+        - "emerge"
+      rules:
+        - "Identify distribution, release, architecture, and package manager before selecting commands."
+        - "Do not use one distribution's package names or service commands on another distribution without verification."
+        - "Do not assume sudo is installed or that the user has root privileges."
+  installation_state:
+    detect_before_install: true
+    avoid_duplicate_installations: true
+    preserve_existing_user_configuration: true
+    never_overwrite_without_approval: true
+    verify_after_install: true
+    record:
+      - "requested capability and resolved package"
+      - "detected pre-existing version/state"
+      - "selected provider and official source"
+      - "installed version"
+      - "verification command and result"
+      - "reboot or manual action required"
+
+# EXPANDED TOOL FAMILIES
+# These are selectable inventory families, not a default bundle. Every item
+# must be independently selectable where practical and mapped to OS providers.
+tool_families:
+  devops_tools:
+    source_control_and_collaboration:
+      - "Git"
+      - "Git LFS"
+      - "GitHub CLI (gh)"
+      - "GitLab CLI (glab)"
+      - "GitHub Desktop (optional GUI)"
+      - "LazyGit"
+    containers_and_artifacts:
+      - "Docker Engine"
+      - "Docker Desktop (supported Windows/macOS targets)"
+      - "Docker Compose"
+      - "Podman"
+      - "Buildah"
+      - "Skopeo"
+      - "containerd tools"
+      - "crane"
+      - "regctl"
+    kubernetes_and_gitops:
+      - "kubectl"
+      - "Helm"
+      - "Kustomize"
+      - "k9s"
+      - "kind"
+      - "minikube"
+      - "k3d"
+      - " kubectx and kubens"
+      - "Skaffold"
+      - "Tilt"
+      - "Argo CD CLI"
+      - "Flux CLI"
+      - "Helmfile"
+      - "stern"
+      - "kubeseal"
+      - "kubeconform"
+    infrastructure_as_code_and_configuration:
+      - "Terraform"
+      - "OpenTofu"
+      - "Packer"
+      - "Vagrant"
+      - "Pulumi"
+      - "Ansible"
+      - "Ansible Navigator"
+      - "Chef Workstation"
+      - "Puppet"
+      - "Salt"
+      - "Crossplane CLI"
+    ci_cd_and_release:
+      - "act (local GitHub Actions runner)"
+      - "Jenkins agent/CLI where required"
+      - "GitLab Runner"
+      - "GitHub Actions self-hosted runner (explicit opt-in)"
+      - "Buildkite agent (explicit opt-in)"
+      - "semantic-release tooling"
+      - "release automation utilities"
+    observability_and_operations:
+      - "Prometheus tools (promtool)"
+      - "Grafana Alloy / Agent successor tooling where applicable"
+      - "OpenTelemetry Collector"
+      - "Loki log CLI tools"
+      - "Jaeger tooling"
+      - "kube-state-metrics only in a cluster deployment context"
+    security_and_supply_chain:
+      - "Trivy"
+      - "Grype"
+      - "Syft"
+      - "Cosign"
+      - "Checkov"
+      - "Gitleaks"
+      - "TruffleHog"
+      - "Hadolint"
+      - "ShellCheck"
+      - "actionlint"
+      - "Semgrep CLI"
+      - "kube-bench"
+      - "Kubescape"
+    remote_access_and_network_operations:
+      - "OpenSSH client"
+      - "OpenSSH server (optional; never enable by default)"
+      - "rsync"
+      - "mtr"
+      - "iperf3"
+      - "nmap (explicit opt-in and lawful-use notice)"
+      - "socat"
+      - "netcat implementation appropriate to OS"
+  automation_tools:
+    task_and_build_automation:
+      - "GNU Make"
+      - "Ninja"
+      - "Just"
+      - "Task"
+      - "Earthly"
+      - "Dagger CLI"
+      - "CMake"
+      - "Gradle"
+      - "Apache Maven"
+      - "Apache Ant"
+    scripting_and_configuration:
+      - "PowerShell 7"
+      - "Bash"
+      - "Zsh"
+      - "Ansible"
+      - "Python automation environment"
+      - "Node.js automation environment"
+      - "Go-based automation utilities"
+      - "jq"
+      - "yq"
+    workflow_and_job_automation:
+      - "act"
+      - "Jenkins CLI/agent"
+      - "GitLab Runner"
+      - "GitHub Actions runner"
+      - "Rundeck CLI where applicable"
+    rules:
+      - "Do not install both alternatives in a family unless the user selects both or a dependency requires them."
+      - "Do not register background agents, services, scheduled jobs, or self-hosted CI runners without explicit authorization."
+      - "Do not configure credentials, webhooks, remote control endpoints, or privileged automation by default."
+  cloud_tools_and_cli:
+    aws:
+      - "AWS CLI v2"
+      - "AWS Session Manager Plugin"
+      - "AWS SAM CLI"
+      - "AWS CDK CLI"
+      - "eksctl"
+      - "LocalStack CLI (optional local emulation)"
+    microsoft_azure:
+      - "Azure CLI (az)"
+      - "Azure Developer CLI (azd)"
+      - "Azure Functions Core Tools"
+      - "Bicep CLI"
+    google_cloud:
+      - "Google Cloud CLI (gcloud)"
+      - "gsutil/bq components where supported by the selected Cloud CLI distribution"
+      - "kubectl and GKE auth plugin where needed"
+      - "skaffold where selected for Google Cloud workflows"
+    other_cloud_and_platform_clis:
+      - "OCI CLI"
+      - "DigitalOcean doctl"
+      - "Cloudflare Wrangler"
+      - "cloudflared"
+      - "Vercel CLI"
+      - "Netlify CLI"
+      - "Fly.io CLI (flyctl)"
+      - "Supabase CLI"
+      - "Firebase CLI"
+      - "Pulumi CLI"
+    cloud_security_and_identity:
+      - "HashiCorp Vault CLI"
+      - "SOPS"
+      - "age"
+      - "1Password CLI (optional)"
+    rules:
+      - "Cloud CLIs are tools only; installing them must not sign in, create cloud resources, or change subscriptions."
+      - "Keep cloud authentication separate from installation and require interactive user authorization."
+      - "Do not write credentials into agent.yml, atlas.yaml, shell history, logs, or repository files."
+      - "Install only the selected cloud provider toolchain; do not assume the user uses all cloud providers."
+      - "Verify current official installation and support guidance before selecting package IDs or commands."
+  general_cli_tools:
+    shells_and_terminals:
+      - "Windows PowerShell 5.1 detection"
+      - "PowerShell 7"
+      - "Windows Terminal"
+      - "Bash"
+      - "Zsh"
+      - "Nushell"
+      - "tmux"
+      - "screen"
+      - "Starship prompt"
+    package_and_environment_managers:
+      - "winget"
+      - "Chocolatey"
+      - "Scoop"
+      - "Homebrew"
+      - "MacPorts"
+      - "apt"
+      - "dnf"
+      - "yum"
+      - "pacman"
+      - "zypper"
+      - "apk"
+      - "Conda/Miniconda"
+      - "uv"
+      - "mise"
+      - "asdf"
+      - "Volta"
+      - "fnm"
+      - "nvm-windows"
+    file_text_and_search:
+      - "ripgrep (rg)"
+      - "fd"
+      - "fzf"
+      - "bat"
+      - "eza"
+      - "jq"
+      - "yq"
+      - "tree"
+      - "less"
+      - "file"
+      - "dos2unix"
+      - "GNU coreutils where needed"
+    download_transfer_and_network:
+      - "curl"
+      - "wget"
+      - "aria2"
+      - "rclone"
+      - "rsync"
+      - "OpenSSH client"
+      - "dig"
+      - "nslookup"
+      - "whois"
+      - "tcping or equivalent TCP connectivity utility"
+    archives_and_checksums:
+      - "7-Zip"
+      - "tar"
+      - "gzip"
+      - "xz"
+      - "zstd"
+      - "sha256sum or platform equivalent"
+    diagnostics_and_system:
+      - "btop or htop"
+      - "fastfetch"
+      - "lsof"
+      - "strace on supported Linux systems"
+      - "Procmon/Process Explorer as optional Windows Sysinternals utilities"
+      - "Sysinternals suite (selectable tools)"
+    rules:
+      - "Prefer native OS tools when they are sufficient; install optional CLI enhancements only when selected."
+      - "Do not replace a user's default shell or terminal profile without explicit selection."
+      - "Avoid installing duplicate or conflicting utilities."
+  language_and_sdk_inventory:
+    compiled_and_system_languages:
+      - "C"
+      - "C++"
+      - "C# / .NET SDK"
+      - "Java / JDK"
+      - "Go"
+      - "Rust"
+      - "Swift"
+      - "Objective-C toolchain where supported"
+      - "Fortran"
+      - "COBOL (optional specialist toolchain)"
+      - "Assembly toolchains (architecture-specific)"
+      - "Zig"
+      - "Nim"
+    web_and_application_languages:
+      - "JavaScript / Node.js"
+      - "TypeScript"
+      - "PHP"
+      - "Ruby"
+      - "Kotlin"
+      - "Dart"
+      - "HTML/CSS toolchain utilities"
+    data_science_and_specialist_languages:
+      - "Python"
+      - "R"
+      - "Julia"
+      - "Scala"
+      - "Groovy"
+      - "Lua"
+      - "Perl"
+      - "Haskell"
+      - "OCaml"
+      - "Elixir"
+      - "Erlang/OTP"
+      - "F#"
+      - "PowerShell scripting"
+      - "Bash/Zsh scripting"
+      - "Embedded C/C++ toolchains"
+    frameworks_and_sdk_bundles:
+      - "Flutter SDK"
+      - "Android SDK and command-line tools"
+      - "Android Studio"
+      - ".NET SDK and workloads"
+      - "Java build tooling: Maven and Gradle"
+      - "Node.js package tooling: npm, pnpm, Yarn"
+      - "Python environment tooling: pip, venv, uv, Conda"
+      - "Rust toolchain: rustup, cargo, rustfmt, clippy"
+      - "Go toolchain and go tooling"
+      - "C/C++ compiler and debugger toolchains per target OS"
+    rules:
+      - "A language runtime/compiler, SDK, package manager, and IDE are separate capabilities; model them separately when independently installable."
+      - "Do not assume any language runtime is preinstalled on a fresh target."
+      - "Do not install every language by default; expose explicit language/toolchain profiles."
+      - "Install only the SDK components and workloads selected by the user."
+      - "Validate target architecture, compiler availability, platform restrictions, and supported versions."
+  inventory_selection_policy:
+    default_selection: "minimal_baseline_only"
+    optional_tools_default: false
+    profiles:
+      - "Minimal workstation"
+      - "General software development"
+      - "Web development"
+      - "Backend development"
+      - "C/C++ and systems development"
+      - "Java and .NET development"
+      - "Python and data science"
+      - "Mobile development"
+      - "Cloud engineering"
+      - "DevOps and platform engineering"
+      - "Kubernetes and GitOps"
+      - "Infrastructure as Code"
+      - "Security engineering"
+      - "Machine learning and AI"
+    rules:
+      - "Profiles are curated selections, not opaque bundles; show every package they include."
+      - "Allow users to inspect, add, and remove individual packages before generating a plan."
+      - "Show required dependencies separately from optional recommendations."
+      - "Never install all profiles or all catalogue entries automatically."
+
 non_negotiable_rules:
   - "Read relevant source files before editing."
   - "Treat the repository implementation as the source of truth for current behavior."
