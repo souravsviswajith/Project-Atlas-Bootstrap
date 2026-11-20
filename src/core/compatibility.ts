@@ -80,7 +80,15 @@ function parseRange(range: string): Comparator[] | undefined {
     const version = parseVersion(match[2]);
     if (!version) return undefined;
     const operator = match[1] ?? "=";
-    if (operator === "^" || operator === "~") {
+    const componentCount = match[2].replace(/^v/, "").split(/[+-]/)[0].split(".").length;
+    if ((operator === "=") && componentCount < 3) {
+      comparators.push({ operator: ">=", version });
+      const upper = { major: version.major, minor: version.minor, patch: version.patch, prerelease: [] as string[] };
+      if (componentCount === 1) { upper.major += 1; upper.minor = 0; }
+      else upper.minor += 1;
+      upper.patch = 0;
+      comparators.push({ operator: "<", version: upper });
+    } else if (operator === "^" || operator === "~") {
       comparators.push({ operator: ">=", version });
       comparators.push({ operator: "<", version: upperBound(operator, version, match[2]) });
     } else {
