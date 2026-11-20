@@ -114,7 +114,7 @@ export interface AuthorizedExecutionRequest {
 export interface Executor { execute(request: AuthorizedExecutionRequest): Promise<unknown> }
 
 /** Converts a non-mutating preview into an explicit apply intent only after affirmative confirmation. */
-export function authorizePlan(plan: AtlasPlan, authorization: ExecutionAuthorization, now = new Date()): AuthorizedExecutionRequest {
+export function authorizePlan(plan: AtlasPlan, authorization: ExecutionAuthorization, now = new Date(), registry: ReadonlyArray<Capability> = capabilityRegistry): AuthorizedExecutionRequest {
   if (plan.mode !== "preview" || plan.hasMutations !== false) throw new Error("Invalid or unsupported preview plan");
   if (plan.steps.length === 0) throw new Error("Execution denied: empty plans cannot be applied.");
   if (!authorization.approved || authorization.confirmationText !== "APPLY ATLAS PLAN") {
@@ -122,7 +122,7 @@ export function authorizePlan(plan: AtlasPlan, authorization: ExecutionAuthoriza
   }
   if (plan.compatibilityIssues.some((issue) => issue.severity === "error" || issue.code === "version-unresolved")) throw new Error("Execution denied: compatibility constraints or version resolution are incomplete.");
   if (plan.steps.some((step) => step.state !== "planned")) throw new Error("Execution denied: plan contains unavailable or blocked capabilities.");
-  if (plan.steps.some((step) => capabilityRegistry.find((capability) => capability.id === step.capabilityId)?.implementation !== "verified-provider")) throw new Error("Execution denied: one or more capabilities are catalogue-only and have no verified executable provider.");
+  if (plan.steps.some((step) => registry.find((capability) => capability.id === step.capabilityId)?.implementation !== "verified-provider")) throw new Error("Execution denied: one or more capabilities are catalogue-only and have no verified executable provider.");
   return { schemaVersion: 1, mode: "apply", target: plan.target, steps: plan.steps, authorizedAt: now.toISOString(), hasMutations: true };
 }
 
