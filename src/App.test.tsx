@@ -47,7 +47,7 @@ describe("Atlas plan UI", () => {
     await user.click(screen.getByRole("button", { name: /Add Hardware layer/i }));
     await user.click(screen.getByRole("button", { name: /Generate deterministic preview/i }));
     expect(screen.getByText("C compiler toolchain")).toBeTruthy();
-    expect(screen.getByText("C#")).toBeTruthy();
+    expect(screen.getByText(".NET SDK (C#)")).toBeTruthy();
     expect(screen.getByText("SQLFluff (SQL lint and format)")).toBeTruthy();
     expect(screen.getByText("PHP CLI runtime")).toBeTruthy();
     expect(screen.getByText("NASM assembler")).toBeTruthy();
