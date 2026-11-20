@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { capabilityRegistry } from "./registry";
-import { createPlan } from "./planner";
+import { authorizePlan, createPlan } from "./planner";
 import { satisfiesVersion, versionConstraintsOverlap } from "./compatibility";
 import type { AtlasConfig, Capability } from "./types";
 
@@ -70,6 +70,7 @@ describe("package compatibility planning", () => {
       severity: "error",
       capabilityIds: ["test.first", "test.second"],
     }));
+    expect(() => authorizePlan(plan, { approved: true, confirmationText: "APPLY ATLAS PLAN" })).toThrow(/compatibility constraints/);
   });
 
   it("blocks a dependent when an explicitly pinned dependency version violates its range", () => {
