@@ -79,6 +79,11 @@ export default function App() {
       : [...selected, id]);
   };
 
+  const addPack = (pack: "core-languages" | "hardware") => {
+    const packIds = capabilityRegistry.filter((capability) => capability.pack === pack).map((capability) => capability.id);
+    setSelectedCapabilities((selected) => [...new Set([...selected, ...packIds])]);
+  };
+
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100">
       {/* Header */}
@@ -212,6 +217,10 @@ export default function App() {
 
             <details className="mt-4 rounded-xl border border-slate-800 bg-slate-950/60 p-3">
               <summary className="cursor-pointer text-sm font-medium text-slate-200 focus-visible:outline-2 focus-visible:outline-indigo-400">Select from {capabilityRegistry.length} catalogued capabilities <span className="ml-2 text-xs text-slate-500">{selectedCapabilities.length} selected</span></summary>
+              <div className="mt-3 flex flex-wrap gap-2">
+                <button type="button" onClick={() => addPack("core-languages")} className="rounded-md border border-indigo-800 px-3 py-1.5 text-xs font-medium text-indigo-300 hover:bg-indigo-950/60">Add Core Languages pack</button>
+                <button type="button" onClick={() => addPack("hardware")} className="rounded-md border border-amber-800 px-3 py-1.5 text-xs font-medium text-amber-300 hover:bg-amber-950/40">Add Hardware layer</button>
+              </div>
               <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
                 {capabilityRegistry.map((capability) => (
                   <label key={capability.id} className="flex min-w-0 items-start gap-2 rounded-lg p-2 text-xs text-slate-300 hover:bg-slate-900">
