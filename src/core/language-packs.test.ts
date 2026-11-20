@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { capabilityRegistry, assertRegistryIntegrity } from "./registry";
 import { ARTIFACT_PROFILES, getArtifactProfile } from "./artifacts";
 import { ATLAS_CORE_BUILD_PROFILE } from "./build-profile";
-import { createPlan } from "./planner";
+import { authorizePlan, createPlan } from "./planner";
 
 describe("Atlas core build profile", () => {
   it("separates Atlas implementation technologies from user artifact toolchains", () => {
@@ -51,6 +51,23 @@ describe("artifact-driven toolchain profiles", () => {
     expect(plan.steps.map((step) => step.capabilityId)).toEqual(["php.runtime", "php.composer"]);
     expect(plan.steps.every((step) => step.state === "planned")).toBe(true);
     expect(plan.hasMutations).toBe(false);
+  });
+
+  it("does not authorize catalogue-only capabilities for execution", () => {
+    const plan = createPlan({
+      schemaVersion: 1,
+      target: { os: "linux", distro: "ubuntu", arch: "x64" },
+      capabilities: [{ id: "rust.rustup", optional: false }],
+      policy: { mode: "preview", requireAuthorization: true },
+      verification: { required: true },
+      reporting: { format: "json" },
+    });
+    expect(() => authorizePlan(plan, { approved: true, confirmationText: "APPLY ATLAS PLAN" }))
+      .toThrow(/catalogue-only/);
+  });
+
+  it("does not make Ninja depend on CMake", () => {
+    expect(capabilityRegistry.find((item) => item.id === "cpp.ninja")?.dependencies).toEqual([]);
   });
 
   it("keeps the capability inventory broader than the available artifact presets", () => {
