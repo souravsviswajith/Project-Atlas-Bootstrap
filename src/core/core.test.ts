@@ -148,7 +148,7 @@ describe("platform-aware checklist commands", () => {
     const linuxItems = getPhasesForTarget("linux").flatMap((phase) => phase.sections.flatMap((section) => section.items));
     expect(windowsItems.find((item) => item.id === "py-miniconda")?.commands).toContain("winget install -e --id Anaconda.Miniconda3");
     expect(linuxItems.find((item) => item.id === "py-miniconda")?.commands ?? []).not.toContain("winget install -e --id Anaconda.Miniconda3");
-    expect(linuxItems.find((item) => item.id === "android-sdk-move")?.commands ?? []).not.toContain('setx ANDROID_HOME "D:\\\\Android\\\\Sdk"');
+    expect(linuxItems.flatMap((item) => item.commands ?? []).some((command) => /\bwinget\b|\bsetx\b|^clip\s/i.test(command))).toBe(false);
     expect(linuxItems.find((item) => item.id === "py-miniconda")?.note).toContain("Windows-specific command(s) hidden");
   });
 });
