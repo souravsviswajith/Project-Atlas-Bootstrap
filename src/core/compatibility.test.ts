@@ -38,7 +38,10 @@ describe("semantic version constraints", () => {
     expect(satisfiesVersion("20.11.1", ">20")).toBe(false);
     expect(satisfiesVersion("21.0.0", ">20")).toBe(true);
     expect(satisfiesVersion("20.9.0", "<=20")).toBe(true);
+    expect(satisfiesVersion("19.9.0", "<=20")).toBe(true);
     expect(satisfiesVersion("21.0.0", "<=20")).toBe(false);
+    expect(satisfiesVersion("20.10.0", "<=20.11")).toBe(true);
+    expect(satisfiesVersion("20.12.0", "<=20.11")).toBe(false);
     expect(satisfiesVersion("20.12.0", ">20.11")).toBe(true);
     expect(satisfiesVersion("20.11.9", ">20.11")).toBe(false);
     expect(satisfiesVersion("01.2.3", ">=1")).toBe(false);
@@ -138,6 +141,25 @@ describe("package compatibility planning", () => {
       severity: "warning",
     }));
     expect(() => authorizePlan(plan, { approved: true, confirmationText: "APPLY ATLAS PLAN" })).toThrow(/version resolution are incomplete/);
+  });
+
+  it("treats channels and ranges as unresolved instead of exact-version mismatches", () => {
+    const app = makeCapability("test.app", {
+      dependencies: [dependency.id],
+      dependencyConstraints: { [dependency.id]: ">=2 <3" },
+    });
+    const plan = createPlan(makeConfig([
+      { id: app.id, optional: false },
+      { id: dependency.id, version: "stable", optional: false },
+    ]), new Date(), [app, dependency]);
+
+    expect(plan.compatibilityIssues).toContainEqual(expect.objectContaining({
+      code: "version-unresolved",
+      severity: "warning",
+    }));
+    expect(plan.compatibilityIssues.some((issue) => issue.code === "dependency-version-mismatch")).toBe(false);
+    expect(() => authorizePlan(plan, { approved: true, confirmationText: "APPLY ATLAS PLAN" }))
+      .toThrow(/version resolution are incomplete/);
   });
 
   it("blocks selections whose combined dependency ranges have no intersection", () => {
