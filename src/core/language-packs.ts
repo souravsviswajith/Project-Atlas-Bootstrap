@@ -75,7 +75,7 @@ const extraCapabilities: Capability[] = [
     versionPolicy: "user-selected",
     detection: { executable: "php", versionArgs: ["--version"] },
     verification: "Check PHP version, architecture, loaded configuration, and enabled extensions; do not modify php.ini implicitly.",
-    supportedArchitectures: ["x64", "arm64"],
+    supportedArchitectures: ["x64"],
     implementation: "catalogued-plan-only",
   },
   {
