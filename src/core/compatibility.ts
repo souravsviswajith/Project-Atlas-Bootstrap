@@ -20,13 +20,19 @@ export interface CompatibilityRequest {
 
 
 function parseVersion(value: string): ParsedVersion | undefined {
-  const match = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([0-9A-Za-z.-]+))?(?:\+[0-9A-Za-z.-]+)?$/.exec(value.trim());
+  const match = /^v?(\d+)(?:\.(\d+))?(?:\.(\d+))?(?:-([0-9A-Za-z.-]+))?(?:\+([0-9A-Za-z.-]+))?$/.exec(value.trim());
   if (!match) return undefined;
+  const coreParts = [match[1], match[2], match[3]].filter((part): part is string => part !== undefined);
+  if (coreParts.some((part) => part.length > 1 && part.startsWith("0"))) return undefined;
+  const prerelease = match[4] ? match[4].split(".") : [];
+  const build = match[5] ? match[5].split(".") : [];
+  if (prerelease.some((part) => !part || (/^\d+$/.test(part) && part.length > 1 && part.startsWith("0"))) ||
+    build.some((part) => !part)) return undefined;
   const major = Number(match[1]);
   const minor = Number(match[2] ?? 0);
   const patch = Number(match[3] ?? 0);
   if (![major, minor, patch].every(Number.isSafeInteger)) return undefined;
-  return { major, minor, patch, prerelease: match[4] ? match[4].split(".") : [] };
+  return { major, minor, patch, prerelease };
 }
 
 function compareVersions(left: ParsedVersion, right: ParsedVersion): number {
@@ -45,7 +51,12 @@ function compareVersions(left: ParsedVersion, right: ParsedVersion): number {
     if (a === b) continue;
     const aNumeric = /^\d+$/.test(a);
     const bNumeric = /^\d+$/.test(b);
-    if (aNumeric && bNumeric) return Number(a) < Number(b) ? -1 : 1;
+    if (aNumeric && bNumeric) {
+      const normalizedA = a.replace(/^0+(?=\\d)/, "");
+      const normalizedB = b.replace(/^0+(?=\\d)/, "");
+      if (normalizedA.length !== normalizedB.length) return normalizedA.length < normalizedB.length ? -1 : 1;
+      return normalizedA < normalizedB ? -1 : 1;
+    }
     if (aNumeric !== bNumeric) return aNumeric ? -1 : 1;
     return a < b ? -1 : 1;
   }
