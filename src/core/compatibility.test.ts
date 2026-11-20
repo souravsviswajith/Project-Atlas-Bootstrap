@@ -137,6 +137,7 @@ describe("package compatibility planning", () => {
       code: "version-unresolved",
       severity: "warning",
     }));
+    expect(() => authorizePlan(plan, { approved: true, confirmationText: "APPLY ATLAS PLAN" })).toThrow(/version resolution are incomplete/);
   });
 
   it("blocks selections whose combined dependency ranges have no intersection", () => {
