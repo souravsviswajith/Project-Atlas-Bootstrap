@@ -26,8 +26,8 @@ describe("Atlas configuration", () => {
   });
 
   it("accepts explicit WSL 1 and WSL 2 targets and defaults existing Linux configs to native", () => {
-    const wsl1 = parseAtlasConfig("schemaVersion: 1\\ntarget:\\n  os: linux\\n  arch: x64\\n  distro: ubuntu\\n  environment: wsl\\n  hostOS: windows\\n  wslVersion: 1\\ncapabilities: []\\n");
-    const wsl2 = parseAtlasConfig("schemaVersion: 1\\ntarget:\\n  os: linux\\n  arch: x64\\n  distro: ubuntu\\n  environment: wsl\\n  hostOS: windows\\n  wslVersion: 2\\ncapabilities: []\\n");
+    const wsl1 = parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\n  environment: wsl\n  hostOS: windows\n  wslVersion: 1\ncapabilities: []\n");
+    const wsl2 = parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\n  environment: wsl\n  hostOS: windows\n  wslVersion: 2\ncapabilities: []\n");
     const native = parseAtlasConfig(yaml(""));
     expect(wsl1.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 1 });
     expect(wsl2.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 2 });
@@ -35,7 +35,7 @@ describe("Atlas configuration", () => {
   });
 
   it("rejects invalid WSL host, execution OS, and version combinations", () => {
-    const base = "schemaVersion: 1\\ntarget:\\n  os: linux\\n  arch: x64\\n  distro: ubuntu\\n  environment: wsl\\n  hostOS: windows\\n  wslVersion: 2\\ncapabilities: []\\n";
+    const base = "schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\n  environment: wsl\n  hostOS: windows\n  wslVersion: 2\ncapabilities: []\n";
     expect(() => parseAtlasConfig(base.replace("hostOS: windows", "hostOS: macos"))).toThrow(/hostOS/);
     expect(() => parseAtlasConfig(base.replace("os: linux", "os: windows"))).toThrow(/WSL execution targets/);
     expect(() => parseAtlasConfig(base.replace("wslVersion: 2", "wslVersion: 3"))).toThrow(/wslVersion/);
@@ -81,7 +81,7 @@ describe("capability registry and planning", () => {
   });
 
   it("uses Linux distro providers for WSL without treating WSL as native Windows", () => {
-    const config = parseAtlasConfig("schemaVersion: 1\\ntarget:\\n  os: linux\\n  arch: x64\\n  distro: ubuntu\\n  environment: wsl\\n  hostOS: windows\\n  wslVersion: 2\\ncapabilities:\\n  - id: git.git\\n");
+    const config = parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\n  distro: ubuntu\n  environment: wsl\n  hostOS: windows\n  wslVersion: 2\ncapabilities:\n  - id: git.git\n");
     const plan = createPlan(config);
     expect(plan.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 2 });
     expect(plan.steps[0].provider?.manager).toBe("apt");
