@@ -56,7 +56,7 @@ export interface Capability {
   detection: { executable: string; versionArgs: string[] };
   verification: string;
   environment?: string[];
-  implementation: "catalogued-plan-only";
+  implementation: "catalogued-plan-only" | "verified-provider";
 }
 
 export interface AtlasConfig {
