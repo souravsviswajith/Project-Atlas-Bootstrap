@@ -85,7 +85,7 @@ export function parseAtlasConfig(source: string): AtlasConfig {
   if (target.osVersion !== undefined && (typeof target.osVersion !== "string" || !/^\d+(?:\.\d+){0,2}$/.test(target.osVersion))) issues.push("target.osVersion: expected a numeric release such as 11 or 15.6");
   if (target.distroVersion !== undefined && (target.os !== "linux" || typeof target.distroVersion !== "string" || !/^\d+(?:\.\d+){0,2}$/.test(target.distroVersion))) issues.push("target.distroVersion: valid only on Linux and must be a numeric release such as 24.04");
 
-  const executionEnvironment = target.executionEnvironment === undefined ? "native" : target.executionEnvironment;
+  const executionEnvironment = (target.executionEnvironment === undefined ? "native" : target.executionEnvironment) as "native" | "wsl";
   if (executionEnvironment !== "native" && executionEnvironment !== "wsl") {
     issues.push("target.executionEnvironment: expected native or wsl");
   }
