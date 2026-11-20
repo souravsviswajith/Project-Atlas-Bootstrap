@@ -216,7 +216,7 @@ export default function App() {
                 {capabilityRegistry.map((capability) => (
                   <label key={capability.id} className="flex min-w-0 items-start gap-2 rounded-lg p-2 text-xs text-slate-300 hover:bg-slate-900">
                     <input type="checkbox" checked={selectedCapabilities.includes(capability.id)} onChange={() => toggleCapability(capability.id)} className="mt-0.5 accent-indigo-500 focus-visible:outline-2 focus-visible:outline-indigo-400" />
-                    <span><span className="block font-medium">{capability.name}</span><span className="break-all text-[10px] text-slate-500">{capability.id}</span></span>
+                    <span><span className="block font-medium">{capability.name}</span><span className="break-all text-[10px] text-slate-500">{capability.id}</span>{capability.pack && <span className="mt-1 inline-block rounded bg-indigo-950/70 px-1.5 py-0.5 text-[9px] uppercase tracking-wide text-indigo-300">{capability.pack === "core-languages" ? "Core Languages" : "Hardware Layer"}</span>}</span>
                   </label>
                 ))}
               </div>
