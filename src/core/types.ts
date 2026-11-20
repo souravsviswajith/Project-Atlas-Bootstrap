@@ -44,7 +44,7 @@ export interface Capability {
   description: string;
   platforms: Partial<Record<TargetOS, ProviderOption[]>>;
   dependencies: string[];
-  /** Ecosystem-aware version constraints keyed by dependency capability ID. */
+  /** SemVer-only constraints keyed by dependency capability ID; other schemes belong to ecosystem adapters. */
   dependencyConstraints?: Record<string, string>;
   /** Explicit mutual-exclusion metadata; absent means no conflict is asserted. */
   conflicts?: string[];
