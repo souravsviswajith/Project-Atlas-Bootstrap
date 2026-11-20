@@ -81,16 +81,16 @@ export function createPlan(config: AtlasConfig, now: Date = new Date(), registry
     const blockingIssues = blockingIssuesByCapability.get(id) ?? [];
     const step: PlanStep = unavailableDependency
       ? { capabilityId: id, name: capability.name, state: "blocked", requestedVersion: requested?.version,
-          reason: `Blocked because prerequisite '${unavailableDependency}' is unavailable.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
+          reason: `Blocked because prerequisite '${unavailableDependency}' is unavailable or incompatible.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
       : blockingIssues.length
         ? { capabilityId: id, name: capability.name, state: "blocked", requestedVersion: requested?.version,
             reason: blockingIssues.join(" "), dependencies: [...capability.dependencies], optional, verification: capability.verification }
         : !provider
-        ? { capabilityId: id, name: capability.name, state: "unavailable", requestedVersion: requested?.version,
+          ? { capabilityId: id, name: capability.name, state: "unavailable", requestedVersion: requested?.version,
             reason: (config.target.arch === "x86" || config.target.arch === "arm32")
               ? `No provider has a verified ${config.target.arch} architecture mapping yet.`
               : `No candidate provider is catalogued for ${config.target.os}${config.target.distro ? ` (${config.target.distro})` : ""}.`, dependencies: [...capability.dependencies], optional, verification: capability.verification }
-        : { capabilityId: id, name: capability.name, state: "planned", provider, requestedVersion: requested?.version,
+          : { capabilityId: id, name: capability.name, state: "planned", provider, requestedVersion: requested?.version,
             reason: requested ? "Explicitly requested; prerequisites are included first." : `Required prerequisite of ${capability.name}.`, dependencies: [...capability.dependencies], optional, verification: capability.verification };
     steps.push(step);
     stepsById.set(id, step);
