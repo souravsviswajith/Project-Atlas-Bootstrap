@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="description" content="Atlas local development environment setup interface">
+  <title>Atlas — Environment Builder</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview" aria-label="Atlas home">
+        <span class="brand-mark">A</span>
+        <span><strong>ATLAS</strong><small>Environment setup</small></span>
+      </a>
+      <div class="sidebar-label">WORKSPACE</div>
+      <nav class="nav-list" aria-label="Main navigation">
+        <a class="nav-link active" href="#overview" data-view="overview"><span class="nav-icon">⌂</span> Overview</a>
+        <a class="nav-link" href="#hardware" data-view="hardware"><span class="nav-icon">▦</span> Hardware checkup</a>
+        <a class="nav-link" href="#software" data-view="software"><span class="nav-icon">◫</span> Software catalogue</a>
+        <a class="nav-link" href="#stacks" data-view="stacks"><span class="nav-icon">▤</span> Technology stacks</a>
+        <a class="nav-link" href="#checklist" data-view="checklist"><span class="nav-icon">☷</span> Checklist</a>
+        <a class="nav-link" href="#review" data-view="review"><span class="nav-icon">✓</span> Review & install</a>
+      </nav>
+      <div class="sidebar-label sidebar-label-bottom">RESOURCES</div>
+      <nav class="nav-list">
+        <a class="nav-link" href="#documentation" data-view="documentation"><span class="nav-icon">▧</span> Documentation</a>
+      </nav>
+      <div class="sidebar-footer">
+        <span class="status-dot"></span>
+        <span><strong>Local session</strong><small>Execution service not connected</small></span>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="topbar">
+        <button class="mobile-menu" id="mobile-menu" aria-label="Toggle navigation" aria-expanded="false">☰</button>
+        <div class="breadcrumb">Atlas <span>/</span> <strong id="breadcrumb-current">Overview</strong></div>
+        <div class="topbar-right">
+          <span class="local-pill"><span class="status-dot"></span> LOCAL</span>
+          <span class="version-label">Bootstrap preview</span>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="view active" id="view-overview" aria-labelledby="page-title">
+          <div class="page-heading">
+            <div><p class="eyebrow">DEVELOPMENT WORKSTATION</p><h1 id="page-title">Prepare your environment</h1><p class="muted">Choose what you need. Atlas will build a platform-aware setup plan for your machine.</p></div>
+            <span class="preview-badge">UI PREVIEW</span>
+          </div>
+
+          <div class="hero-card">
+            <div class="hero-copy"><span class="hero-kicker">YOUR WORKSPACE, YOUR RULES</span><h2>Build the development environment you actually need.</h2><p>Start with a hardware check, select individual tools or a complete stack, then review every planned change before installation.</p><a class="button button-primary" href="#hardware" data-view="hardware">Start hardware check <span>→</span></a></div>
+            <div class="hero-graphic" aria-hidden="true"><div class="orb orb-one"></div><div class="orb orb-two"></div><div class="hero-window"><div class="window-dots"><i></i><i></i><i></i></div><div class="window-line long"></div><div class="window-line"></div><div class="window-chip-row"><i></i><i></i><i></i></div><div class="window-line short"></div></div></div>
+          </div>
+
+          <div class="section-heading"><div><h2>Setup workflow</h2><p class="muted">A guided process from machine inspection to verified installation.</p></div></div>
+          <div class="workflow-grid">
+            <a class="workflow-card" href="#hardware" data-view="hardware"><span class="step-number">01</span><span class="workflow-icon">▦</span><h3>Hardware checkup</h3><p>Inspect CPU, memory, graphics, storage and operating system.</p><span class="card-link">Inspect machine →</span></a>
+            <a class="workflow-card" href="#software" data-view="software"><span class="step-number">02</span><span class="workflow-icon">◫</span><h3>Choose software</h3><p>Select languages, SDKs, runtimes, databases and developer tools.</p><span class="card-link">Browse catalogue →</span></a>
+            <a class="workflow-card" href="#stacks" data-view="stacks"><span class="step-number">03</span><span class="workflow-icon">▤</span><h3>Choose a stack</h3><p>Start with a preset and customize every component.</p><span class="card-link">Explore stacks →</span></a>
+            <a class="workflow-card" href="#review" data-view="review"><span class="step-number">04</span><span class="workflow-icon">✓</span><h3>Review & install</h3><p>Check dependencies, commands, permissions and planned changes.</p><span class="card-link">Review plan →</span></a>
+          </div>
+
+          <div class="notice notice-info"><span class="notice-icon">i</span><div><strong>Native execution is not connected yet</strong><p>This interface is a static frontend prototype. It does not inspect hardware, request elevation, start an installer or modify the host machine.</p></div></div>
+        </section>
+
+        <section class="view" id="view-hardware" aria-labelledby="hardware-title">
+          <div class="page-heading"><div><p class="eyebrow">STEP 01 · MACHINE PROFILE</p><h1 id="hardware-title">Hardware checkup</h1><p class="muted">The native bootstrap will collect this information before opening the browser.</p></div><span class="state-badge state-pending">Awaiting native service</span></div>
+          <div class="panel">
+            <div class="panel-heading"><div><h2>Target environment</h2><p class="muted">Choose where software will execute.</p></div></div>
+            <div class="form-grid">
+              <label>Operating system<select id="target-os"><option value="windows">Windows</option><option value="linux">Linux</option><option value="macos">macOS</option></select></label>
+              <label>Architecture<select id="target-arch"><option value="x64">x64 / AMD64</option><option value="arm64">ARM64</option></select></label>
+              <label id="distro-field" class="hidden">Linux distribution<select id="target-distro"><option>Ubuntu</option><option>Debian</option><option>Fedora</option><option>RHEL</option><option>Arch Linux</option><option>openSUSE</option></select></label>
+              <label id="environment-field" class="hidden">Execution environment<select id="target-environment"><option value="native">Native Linux</option><option value="wsl">WSL on Windows</option></select></label>
+              <label id="wsl-field" class="hidden">WSL version<select id="target-wsl"><option value="2">WSL 2</option><option value="1">WSL 1</option></select></label>
+            </div>
+          </div>
+          <div class="hardware-grid">
+            <article class="metric-card"><span class="metric-icon">▣</span><span class="metric-label">PROCESSOR</span><strong>Not detected</strong><small>CPU model · cores · architecture</small></article>
+            <article class="metric-card"><span class="metric-icon">▤</span><span class="metric-label">MEMORY</span><strong>Not detected</strong><small>Total and available RAM</small></article>
+            <article class="metric-card"><span class="metric-icon">▧</span><span class="metric-label">GRAPHICS</span><strong>Not detected</strong><small>GPU · VRAM · driver</small></article>
+            <article class="metric-card"><span class="metric-icon">▱</span><span class="metric-label">STORAGE</span><strong>Not detected</strong><small>Free space · filesystem</small></article>
+            <article class="metric-card"><span class="metric-icon">⌘</span><span class="metric-label">OPERATING SYSTEM</span><strong>Not detected</strong><small>Edition · version · build</small></article>
+            <article class="metric-card"><span class="metric-icon">⌁</span><span class="metric-label">PRIVILEGES</span><strong>Not checked</strong><small>Administrator / root status</small></article>
+          </div>
+          <div class="notice notice-warning"><span class="notice-icon">!</span><div><strong>Hardware values are intentionally not simulated</strong><p>Only the native bootstrap can provide trustworthy machine information. The browser must display the actual inspection result returned by the local service.</p></div></div>
+        </section>
+
+        <section class="view" id="view-software" aria-labelledby="software-title">
+          <div class="page-heading"><div><p class="eyebrow">STEP 02 · COMPONENT SELECTION</p><h1 id="software-title">Software catalogue</h1><p class="muted">Select individual components. Versions and platform providers will be resolved in the installation plan.</p></div><span class="count-pill"><strong id="selected-count">0</strong> selected</span></div>
+          <div class="toolbar"><label class="search-box"><span>⌕</span><input id="catalogue-search" type="search" placeholder="Search languages, SDKs, tools…"></label><select id="catalogue-category" aria-label="Filter category"><option value="all">All categories</option><option value="language">Languages</option><option value="sdk">SDKs & runtimes</option><option value="devops">DevOps & cloud</option><option value="database">Databases</option><option value="editor">Developer tools</option></select></div>
+          <div class="catalogue-grid" id="catalogue">
+            <label class="software-card" data-name="Python" data-category="language"><input type="checkbox" value="python"><span class="software-symbol symbol-python">Py</span><span class="software-info"><strong>Python</strong><small>Language · CPython</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Java" data-category="language"><input type="checkbox" value="java"><span class="software-symbol symbol-java">J</span><span class="software-info"><strong>Java</strong><small>Language · OpenJDK</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="C C++" data-category="language"><input type="checkbox" value="cpp"><span class="software-symbol symbol-cpp">C++</span><span class="software-info"><strong>C / C++</strong><small>Compiler toolchains</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="C#" data-category="language"><input type="checkbox" value="csharp"><span class="software-symbol symbol-csharp">C#</span><span class="software-info"><strong>C#</strong><small>.NET language</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Go" data-category="language"><input type="checkbox" value="go"><span class="software-symbol symbol-go">Go</span><span class="software-info"><strong>Go</strong><small>Language · Go toolchain</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Rust" data-category="language"><input type="checkbox" value="rust"><span class="software-symbol symbol-rust">Rs</span><span class="software-info"><strong>Rust</strong><small>Language · rustup</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Node.js JavaScript TypeScript" data-category="language"><input type="checkbox" value="node"><span class="software-symbol symbol-node">JS</span><span class="software-info"><strong>Node.js</strong><small>JavaScript / TypeScript runtime</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Fortran" data-category="language"><input type="checkbox" value="fortran"><span class="software-symbol symbol-fortran">F</span><span class="software-info"><strong>Fortran</strong><small>Compiler toolchain</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Flutter SDK Dart" data-category="sdk"><input type="checkbox" value="flutter"><span class="software-symbol symbol-flutter">Fl</span><span class="software-info"><strong>Flutter SDK</strong><small>Dart · mobile / desktop</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name=".NET SDK" data-category="sdk"><input type="checkbox" value="dotnet"><span class="software-symbol symbol-dotnet">.N</span><span class="software-info"><strong>.NET SDK</strong><small>Runtime · build tools</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Android SDK" data-category="sdk"><input type="checkbox" value="android"><span class="software-symbol symbol-android">Ad</span><span class="software-info"><strong>Android SDK</strong><small>Platform tools · emulator optional</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Docker" data-category="devops"><input type="checkbox" value="docker"><span class="software-symbol symbol-docker">D</span><span class="software-info"><strong>Docker</strong><small>Container engine / CLI</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Kubernetes kubectl" data-category="devops"><input type="checkbox" value="kubernetes"><span class="software-symbol symbol-k8s">K8</span><span class="software-info"><strong>Kubernetes tools</strong><small>kubectl · optional local cluster</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Terraform" data-category="devops"><input type="checkbox" value="terraform"><span class="software-symbol symbol-terraform">Tf</span><span class="software-info"><strong>Terraform</strong><small>Infrastructure as code</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="AWS CLI Google Cloud CLI Azure CLI" data-category="devops"><input type="checkbox" value="cloud-cli"><span class="software-symbol symbol-cloud">☁</span><span class="software-info"><strong>Cloud CLIs</strong><small>AWS · Google Cloud · Azure</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="PostgreSQL" data-category="database"><input type="checkbox" value="postgres"><span class="software-symbol symbol-postgres">Pg</span><span class="software-info"><strong>PostgreSQL</strong><small>Database server / client</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="MySQL" data-category="database"><input type="checkbox" value="mysql"><span class="software-symbol symbol-mysql">My</span><span class="software-info"><strong>MySQL</strong><small>Database server / client</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Redis" data-category="database"><input type="checkbox" value="redis"><span class="software-symbol symbol-redis">Re</span><span class="software-info"><strong>Redis</strong><small>In-memory data store</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Git" data-category="editor"><input type="checkbox" value="git"><span class="software-symbol symbol-git">Git</span><span class="software-info"><strong>Git</strong><small>Version control</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="Visual Studio Code VS Code" data-category="editor"><input type="checkbox" value="vscode"><span class="software-symbol symbol-vscode">VS</span><span class="software-info"><strong>Visual Studio Code</strong><small>Code editor</small></span><span class="software-check">+</span></label>
+            <label class="software-card" data-name="CMake" data-category="editor"><input type="checkbox" value="cmake"><span class="software-symbol symbol-cmake">C</span><span class="software-info"><strong>CMake</strong><small>Build system generator</small></span><span class="software-check">+</span></label>
+          </div>
+          <div class="empty-state hidden" id="catalogue-empty">No matching components. Try another search.</div>
+          <div class="selection-bar"><span><strong id="selection-summary">Nothing selected yet</strong><small>Selections are local to this preview.</small></span><a class="button button-secondary" href="#review" data-view="review">Review selection →</a></div>
+        </section>
+
+        <section class="view" id="view-stacks" aria-labelledby="stacks-title">
+          <div class="page-heading"><div><p class="eyebrow">STEP 03 · PRESET CONFIGURATIONS</p><h1 id="stacks-title">Technology stacks</h1><p class="muted">Choose a starting point. Every preset remains editable after selection.</p></div></div>
+          <div class="stack-grid">
+            <article class="stack-card"><div class="stack-top"><span class="stack-mark">Py</span><span class="tag">BACKEND</span></div><h3>Python backend</h3><p>Python · pip · Git · PostgreSQL</p><button class="button button-secondary stack-select" data-stack="python-backend">Add stack</button></article>
+            <article class="stack-card"><div class="stack-top"><span class="stack-mark">JS</span><span class="tag">WEB</span></div><h3>Modern web</h3><p>Node.js · TypeScript · Git · VS Code</p><button class="button button-secondary stack-select" data-stack="modern-web">Add stack</button></article>
+            <article class="stack-card"><div class="stack-top"><span class="stack-mark">Fl</span><span class="tag">MOBILE</span></div><h3>Flutter development</h3><p>Flutter SDK · Android SDK · Git</p><button class="button button-secondary stack-select" data-stack="flutter">Add stack</button></article>
+            <article class="stack-card"><div class="stack-top"><span class="stack-mark">K8</span><span class="tag">DEVOPS</span></div><h3>Cloud & DevOps</h3><p>Docker · Kubernetes tools · Terraform · Cloud CLIs</p><button class="button button-secondary stack-select" data-stack="devops">Add stack</button></article>
+            <article class="stack-card"><div class="stack-top"><span class="stack-mark">C++</span><span class="tag">SYSTEMS</span></div><h3>Systems development</h3><p>C/C++ · CMake · Git</p><button class="button button-secondary stack-select" data-stack="systems">Add stack</button></article>
+            <article class="stack-card"><div class="stack-top"><span class="stack-mark">DB</span><span class="tag">DATA</span></div><h3>Data engineering</h3><p>Python · PostgreSQL · Redis · Docker</p><button class="button button-secondary stack-select" data-stack="data">Add stack</button></article>
+          </div>
+          <div class="notice notice-info"><span class="notice-icon">i</span><div><strong>Presets are starting points, not bundles</strong><p>Adding a stack selects its components. You can remove individual items in the software catalogue before reviewing the plan.</p></div></div>
+        </section>
+
+        <section class="view" id="view-checklist" aria-labelledby="checklist-title">
+          <div class="page-heading"><div><p class="eyebrow">STEP 04 · PRE-INSTALL CHECKS</p><h1 id="checklist-title">Installation checklist</h1><p class="muted">Review these gates before authorizing any native changes.</p></div><span class="state-badge state-pending">Preview only</span></div>
+          <div class="checklist">
+            <label class="check-row"><input type="checkbox"><span><strong>Hardware inspection completed</strong><small>Machine profile received from native bootstrap.</small></span><span class="state-badge state-pending">Not checked</span></label>
+            <label class="check-row"><input type="checkbox"><span><strong>Administrator / root privileges confirmed</strong><small>Required privilege gate passed before browser launch.</small></span><span class="state-badge state-pending">Not checked</span></label>
+            <label class="check-row"><input type="checkbox"><span><strong>Target OS and architecture confirmed</strong><small>Execution OS, release, architecture and environment identified.</small></span><span class="state-badge state-pending">Not checked</span></label>
+            <label class="check-row"><input type="checkbox"><span><strong>Selected versions reviewed</strong><small>Versions and release channels resolved for the target.</small></span><span class="state-badge state-pending">Not checked</span></label>
+            <label class="check-row"><input type="checkbox"><span><strong>Dependencies and conflicts reviewed</strong><small>Required components, optional features and conflicts are visible.</small></span><span class="state-badge state-pending">Not checked</span></label>
+            <label class="check-row"><input type="checkbox"><span><strong>Disk space and network requirements reviewed</strong><small>Estimated download and storage requirements are available.</small></span><span class="state-badge state-pending">Not checked</span></label>
+            <label class="check-row"><input type="checkbox"><span><strong>Installation actions explicitly approved</strong><small>User has reviewed the commands and accepted the planned changes.</small></span><span class="state-badge state-pending">Not checked</span></label>
+          </div>
+          <p class="muted small-text">These checkboxes are prototype interactions only. They do not assert that any machine check has actually passed.</p>
+        </section>
+
+        <section class="view" id="view-review" aria-labelledby="review-title">
+          <div class="page-heading"><div><p class="eyebrow">STEP 05 · PLAN VALIDATION</p><h1 id="review-title">Review & install</h1><p class="muted">Inspect the proposed software set before the native execution layer is enabled.</p></div><span class="state-badge state-blocked">Execution unavailable</span></div>
+          <div class="review-layout">
+            <div class="panel"><div class="panel-heading"><div><h2>Selected components</h2><p class="muted">Live selection from the software catalogue.</p></div></div><ul class="selected-list" id="review-list"><li class="muted">No components selected.</li></ul></div>
+            <div class="panel"><div class="panel-heading"><div><h2>Execution gates</h2><p class="muted">Required before any installation can run.</p></div></div><div class="gate-list"><div><span class="gate-indicator"></span><span><strong>Native privilege validation</strong><small>Not connected</small></span></div><div><span class="gate-indicator"></span><span><strong>Platform provider resolution</strong><small>Preview only</small></span></div><div><span class="gate-indicator"></span><span><strong>Command allowlist and approval</strong><small>Not implemented</small></span></div><div><span class="gate-indicator"></span><span><strong>Installation and verification</strong><small>Not implemented</small></span></div></div></div>
+          </div>
+          <div class="notice notice-danger"><span class="notice-icon">!</span><div><strong>Installation is disabled in this prototype</strong><p>No native execution bridge is connected. The install control is intentionally disabled; this page cannot run shell commands or modify your computer.</p></div></div>
+          <div class="review-actions"><button class="button button-secondary" id="clear-selection">Clear selection</button><button class="button button-disabled" disabled title="Native execution is not implemented">Install selected software</button></div>
+        </section>
+
+        <section class="view" id="view-documentation" aria-labelledby="docs-title">
+          <div class="page-heading"><div><p class="eyebrow">REFERENCE LIBRARY</p><h1 id="docs-title">Documentation</h1><p class="muted">Local guides should remain available without an internet connection.</p></div></div>
+          <div class="docs-grid">
+            <article class="doc-card"><span class="doc-icon">▦</span><h3>Hardware requirements</h3><p>Understand resource checks, architecture and compatibility warnings.</p><span class="tag">PLANNED GUIDE</span></article>
+            <article class="doc-card"><span class="doc-icon">◫</span><h3>Languages & SDKs</h3><p>Version channels, runtimes, toolchains and environment configuration.</p><span class="tag">PLANNED GUIDE</span></article>
+            <article class="doc-card"><span class="doc-icon">▤</span><h3>Platform providers</h3><p>How package managers and vendor installers differ by operating system.</p><span class="tag">PLANNED GUIDE</span></article>
+            <article class="doc-card"><span class="doc-icon">⌘</span><h3>WSL environments</h3><p>Windows host versus Linux guest, WSL 1 and WSL 2 behavior.</p><span class="tag">PLANNED GUIDE</span></article>
+            <article class="doc-card"><span class="doc-icon">✓</span><h3>Installation safety</h3><p>Privilege requirements, review gates, logs and verification.</p><span class="tag">PLANNED GUIDE</span></article>
+            <article class="doc-card"><span class="doc-icon">▧</span><h3>Troubleshooting</h3><p>Diagnose failed setup operations and collect useful evidence.</p><span class="tag">PLANNED GUIDE</span></article>
+          </div>
+        </section>
+        <footer class="footer"><span>ATLAS · LOCAL DEVELOPMENT ENVIRONMENT BUILDER</span><span>Static UI prototype · No system changes</span></footer>
+      </div>
+    </main>
+  </div>
+</body>
+</html>
