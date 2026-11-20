@@ -1,13 +1,9 @@
 import type { Capability } from "./types";
 
-const portableProviders = (packageName: string, rationale: string): Capability["platforms"] => ({
-  windows: [{ manager: "manual", package: packageName, rationale: `Use a verified Windows distribution and match the selected target architecture: ${rationale}` }],
-  macos: [{ manager: "manual", package: packageName, rationale: `Use the official macOS distribution or a verified package for the selected architecture: ${rationale}` }],
-  linux: [
-    { manager: "apt", package: packageName, rationale: `Candidate for Debian/Ubuntu only; verify release and architecture: ${rationale}` },
-    { manager: "dnf", package: packageName, rationale: `Candidate for Fedora/RHEL only; verify release and architecture: ${rationale}` },
-    { manager: "pacman", package: packageName, rationale: `Candidate for Arch only; verify release and architecture: ${rationale}` },
-  ],
+const portableProviders = (artifact: string, rationale: string): Capability["platforms"] => ({
+  windows: [{ manager: "manual", package: artifact, rationale: `Official Windows distribution; verify signature, architecture, and supported runtime: ${rationale}` }],
+  macos: [{ manager: "manual", package: artifact, rationale: `Official macOS distribution; verify signature, architecture, and supported runtime: ${rationale}` }],
+  linux: [{ manager: "manual", package: artifact, rationale: `Use the official distribution or a verified distro-specific package; verify architecture and ABI: ${rationale}` }],
 });
 
 const extraCapabilities: Capability[] = [
@@ -107,21 +103,44 @@ const extraCapabilities: Capability[] = [
     category: "hardware",
     pack: "hardware",
     language: "Assembly",
-    description: "Architecture-specific assembler toolchain. Select NASM for x86/x64, GNU as/binutils for supported GNU targets, or LLVM integrated assemblers for supported LLVM targets; syntax and object formats are not interchangeable.",
+    description: "NASM assembler for x86-family source and x64 targets. Syntax and object format must be selected explicitly; this entry does not imply ARM or 16-bit DOS support.",
     platforms: {
-      windows: [{ manager: "manual", package: "NASM / LLVM / MSVC MASM components", rationale: "Select an assembler for the exact x86/x64/ARM64 target and required COFF object format; MASM availability depends on Visual Studio components." }],
-      macos: [{ manager: "manual", package: "Xcode Command Line Tools / LLVM / NASM", rationale: "Apple Clang/LLVM and NASM have different architecture and object-format coverage; verify the requested target." }],
+      windows: [{ manager: "manual", package: "NASM Windows binary", rationale: "Use the official NASM release and select the required Win64 object format." }],
+      macos: [{ manager: "manual", package: "NASM macOS binary", rationale: "Use the official NASM release and verify the host architecture." }],
       linux: [
-        { manager: "apt", package: "binutils / nasm / llvm", rationale: "Separate assembler packages; select the one matching the target triple and object format." },
-        { manager: "dnf", package: "binutils / nasm / llvm", rationale: "Separate assembler packages; select the one matching the target triple and object format." },
-        { manager: "pacman", package: "binutils / nasm / llvm", rationale: "Separate assembler packages; select the one matching the target triple and object format." },
+        { manager: "apt", package: "nasm", rationale: "Debian/Ubuntu NASM package candidate; verify version and ELF output support." },
+        { manager: "dnf", package: "nasm", rationale: "Fedora/RHEL NASM package candidate; verify version and ELF output support." },
+        { manager: "pacman", package: "nasm", rationale: "Arch NASM package candidate; verify version and ELF output support." },
       ],
     },
     dependencies: [],
     versionPolicy: "user-selected",
-    detection: { executable: "as", versionArgs: ["--version"] },
-    verification: "Require an explicit assembler family, target triple, syntax, ABI, and object format; assemble and inspect a minimal object without executing it.",
-    supportedArchitectures: ["x64", "arm64"],
+    detection: { executable: "nasm", versionArgs: ["-v"] },
+    verification: "Require explicit x86-64 target and object format, then assemble and inspect a minimal object without executing it.",
+    supportedArchitectures: ["x64"],
+    implementation: "catalogued-plan-only",
+  },
+  {
+    id: "hardware.assembly.arm64",
+    name: "LLVM AArch64 assembler",
+    category: "hardware",
+    pack: "hardware",
+    language: "Assembly",
+    description: "LLVM integrated assembler tooling for AArch64/ARM64 targets. This is separate from NASM syntax and requires an explicit target triple and object format.",
+    platforms: {
+      windows: [{ manager: "manual", package: "LLVM Windows distribution", rationale: "Use the official LLVM release and verify llvm-mc includes the AArch64 target." }],
+      macos: [{ manager: "manual", package: "Xcode Command Line Tools / LLVM", rationale: "Verify the installed LLVM toolchain exposes the required AArch64 target." }],
+      linux: [
+        { manager: "apt", package: "llvm", rationale: "Debian/Ubuntu LLVM package candidate; verify llvm-mc target registration." },
+        { manager: "dnf", package: "llvm", rationale: "Fedora/RHEL LLVM package candidate; verify llvm-mc target registration." },
+        { manager: "pacman", package: "llvm", rationale: "Arch LLVM package candidate; verify llvm-mc target registration." },
+      ],
+    },
+    dependencies: [],
+    versionPolicy: "user-selected",
+    detection: { executable: "llvm-mc", versionArgs: ["--version"] },
+    verification: "Assemble a minimal AArch64 fixture with an explicit target triple and inspect the resulting object; never execute it as part of detection.",
+    supportedArchitectures: ["arm64"],
     implementation: "catalogued-plan-only",
   },
 ];
@@ -175,4 +194,4 @@ export const CORE_LANGUAGE_PACK = [
   "php.composer",
 ] as const;
 
-export const HARDWARE_PACK = ["hardware.assembly"] as const;
+export const HARDWARE_PACK = ["hardware.assembly", "hardware.assembly.arm64"] as const;
