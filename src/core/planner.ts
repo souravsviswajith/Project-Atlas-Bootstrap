@@ -116,6 +116,7 @@ export interface Executor { execute(request: AuthorizedExecutionRequest): Promis
 /** Converts a non-mutating preview into an explicit apply intent only after affirmative confirmation. */
 export function authorizePlan(plan: AtlasPlan, authorization: ExecutionAuthorization, now = new Date()): AuthorizedExecutionRequest {
   if (plan.mode !== "preview" || plan.hasMutations !== false) throw new Error("Invalid or unsupported preview plan");
+  if (plan.steps.length === 0) throw new Error("Execution denied: empty plans cannot be applied.");
   if (!authorization.approved || authorization.confirmationText !== "APPLY ATLAS PLAN") {
     throw new Error("Execution denied: explicit authorization phrase is required.");
   }
