@@ -22,7 +22,7 @@ The current branch now includes a deterministic constraint evaluator for declare
 - Dependency version constraints and detection of incompatible intersections.
 - Architecture restrictions when a capability explicitly declares them.
 - Structured error and warning diagnostics surfaced in the plan preview.
-- Plans containing hard compatibility errors are blocked from authorization.
+- Plans containing hard compatibility errors are blocked from authorization. Unresolved dependency versions also block authorization even though they are displayed as warnings, because the planner cannot safely invent a candidate version.
 
 The current range evaluator is deliberately limited to SemVer-style numeric versions. Python/PEP 440, Debian, RPM, Maven, Conda, and other ecosystem version schemes must be handled by their ecosystem adapters; do not feed those versions into the SemVer evaluator.
 
