@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+import { getPhasesForTarget } from "../data/phases";
 import { readFileSync } from "node:fs";
 import { parseAtlasConfig, ConfigValidationError } from "./config";
 import { authorizePlan, createPlan, executePlan } from "./planner";
@@ -22,6 +23,23 @@ describe("Atlas configuration", () => {
     expect(() => parseAtlasConfig(yaml("  - id: javascript.node\n    version: '20.x'\n"))).toThrow(/version/);
     expect(() => parseAtlasConfig(yaml("  - id: javascript.node\n  - id: javascript.node\n    version: '24'\n"))).toThrow(/conflicting duplicate/);
     expect(() => parseAtlasConfig("schemaVersion: 1\ntarget:\n  os: linux\n  arch: x64\ncapabilities: []\n")).toThrow(/target.distro/);
+  });
+
+  it("accepts explicit WSL 1 and WSL 2 targets and defaults existing Linux configs to native", () => {
+    const wsl1 = parseAtlasConfig("schemaVersion: 1\\ntarget:\\n  os: linux\\n  arch: x64\\n  distro: ubuntu\\n  environment: wsl\\n  hostOS: windows\\n  wslVersion: 1\\ncapabilities: []\\n");
+    const wsl2 = parseAtlasConfig("schemaVersion: 1\\ntarget:\\n  os: linux\\n  arch: x64\\n  distro: ubuntu\\n  environment: wsl\\n  hostOS: windows\\n  wslVersion: 2\\ncapabilities: []\\n");
+    const native = parseAtlasConfig(yaml(""));
+    expect(wsl1.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 1 });
+    expect(wsl2.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 2 });
+    expect(native.target.environment).toBeUndefined();
+  });
+
+  it("rejects invalid WSL host, execution OS, and version combinations", () => {
+    const base = "schemaVersion: 1\\ntarget:\\n  os: linux\\n  arch: x64\\n  distro: ubuntu\\n  environment: wsl\\n  hostOS: windows\\n  wslVersion: 2\\ncapabilities: []\\n";
+    expect(() => parseAtlasConfig(base.replace("hostOS: windows", "hostOS: macos"))).toThrow(/hostOS/);
+    expect(() => parseAtlasConfig(base.replace("os: linux", "os: windows"))).toThrow(/WSL execution targets/);
+    expect(() => parseAtlasConfig(base.replace("wslVersion: 2", "wslVersion: 3"))).toThrow(/wslVersion/);
+    expect(() => parseAtlasConfig(base.replace("environment: wsl", "environment: native"))).toThrow(/only valid when/);
   });
 
   it("accepts the checked-in example contract and rejects impossible version ranges", () => {
@@ -60,6 +78,13 @@ describe("capability registry and planning", () => {
     expect(plan.steps[2].reason).toContain("Explicitly requested");
     expect(plan.hasMutations).toBe(false);
     expect(plan.generatedAt).toBe("2026-01-02T03:04:05.000Z");
+  });
+
+  it("uses Linux distro providers for WSL without treating WSL as native Windows", () => {
+    const config = parseAtlasConfig("schemaVersion: 1\\ntarget:\\n  os: linux\\n  arch: x64\\n  distro: ubuntu\\n  environment: wsl\\n  hostOS: windows\\n  wslVersion: 2\\ncapabilities:\\n  - id: git.git\\n");
+    const plan = createPlan(config);
+    expect(plan.target).toMatchObject({ os: "linux", environment: "wsl", hostOS: "windows", wslVersion: 2 });
+    expect(plan.steps[0].provider?.manager).toBe("apt");
   });
 
   it("detects cycles rather than producing a partial plan", () => {
@@ -114,6 +139,17 @@ describe("capability registry and planning", () => {
     const unsupported = createPlan({ ...unsupportedConfig, target: { os: "windows", arch: "x64" } });
     expect(() => authorizePlan(unsupported, { approved: true, confirmationText: "APPLY ATLAS PLAN" })).toThrow(/unavailable or blocked/);
     expect(executor.execute).toHaveBeenCalledOnce();
+  });
+});
+
+describe("platform-aware checklist commands", () => {
+  it("keeps Windows package-manager commands on Windows and hides them for Linux/WSL", () => {
+    const windowsItems = getPhasesForTarget("windows").flatMap((phase) => phase.sections.flatMap((section) => section.items));
+    const linuxItems = getPhasesForTarget("linux").flatMap((phase) => phase.sections.flatMap((section) => section.items));
+    expect(windowsItems.find((item) => item.id === "py-miniconda")?.commands).toContain("winget install -e --id Anaconda.Miniconda3");
+    expect(linuxItems.find((item) => item.id === "py-miniconda")?.commands ?? []).not.toContain("winget install -e --id Anaconda.Miniconda3");
+    expect(linuxItems.find((item) => item.id === "android-sdk-move")?.commands ?? []).not.toContain('setx ANDROID_HOME "D:\\\\Android\\\\Sdk"');
+    expect(linuxItems.find((item) => item.id === "py-miniconda")?.note).toContain("Windows-specific command(s) hidden");
   });
 });
 
