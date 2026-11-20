@@ -29,6 +29,7 @@ describe("semantic version constraints", () => {
   it("evaluates exact versions and comparison conjunctions", () => {
     expect(satisfiesVersion("20.11.1", ">=20 <21")).toBe(true);
     expect(satisfiesVersion("21.0.0", ">=20 <21")).toBe(false);
+    expect(satisfiesVersion("20.11.1", ">= 20 < 21")).toBe(true);
     expect(satisfiesVersion("v20.11", "20.11.0")).toBe(true);
   });
 
@@ -37,6 +38,10 @@ describe("semantic version constraints", () => {
     expect(satisfiesVersion("2.0.0", "^1.2.3")).toBe(false);
     expect(satisfiesVersion("0.2.9", "^0.2.3")).toBe(true);
     expect(satisfiesVersion("0.3.0", "^0.2.3")).toBe(false);
+    expect(satisfiesVersion("0.9.0", "^0")).toBe(true);
+    expect(satisfiesVersion("1.0.0", "^0")).toBe(false);
+    expect(satisfiesVersion("0.0.9", "^0.0")).toBe(true);
+    expect(satisfiesVersion("0.1.0", "^0.0")).toBe(false);
     expect(satisfiesVersion("1.2.9", "~1.2")).toBe(true);
     expect(satisfiesVersion("1.3.0", "~1.2")).toBe(false);
   });
