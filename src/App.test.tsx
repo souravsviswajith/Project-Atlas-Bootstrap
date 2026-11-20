@@ -45,10 +45,11 @@ describe("Atlas plan UI", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: /Artifact profile/i }), "php-composer-app");
     await user.click(screen.getByRole("button", { name: /Add artifact requirements/i }));
     await user.click(screen.getByRole("button", { name: /Generate deterministic preview/i }));
-    expect(screen.getByText("PHP CLI runtime")).toBeTruthy();
-    expect(screen.getByText("Composer")).toBeTruthy();
-    expect(screen.queryByText("C compiler toolchain")).toBeNull();
-    expect(screen.queryByText("SQLFluff (SQL lint and format)")).toBeNull();
+    const steps = within(screen.getByRole("list", { name: "Planned toolchain steps" }));
+    expect(steps.getByText("PHP CLI runtime")).toBeTruthy();
+    expect(steps.getByText("Composer")).toBeTruthy();
+    expect(steps.queryByText("C compiler toolchain")).toBeNull();
+    expect(steps.queryByText("SQLFluff (SQL lint and format)")).toBeNull();
   });
 
   it("keeps Assembly as an explicit artifact-specific hardware selection", async () => {
@@ -57,8 +58,9 @@ describe("Atlas plan UI", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: /Artifact profile/i }), "assembly-arm64");
     await user.click(screen.getByRole("button", { name: /Add artifact requirements/i }));
     await user.click(screen.getByRole("button", { name: /Generate deterministic preview/i }));
-    expect(screen.getByText("LLVM AArch64 assembler")).toBeTruthy();
-    expect(screen.queryByText("NASM assembler")).toBeNull();
+    const steps = within(screen.getByRole("list", { name: "Planned toolchain steps" }));
+    expect(steps.getByText("LLVM AArch64 assembler")).toBeTruthy();
+    expect(steps.queryByText("Assembly toolchain")).toBeNull();
   });
 
   it("provides keyboard-operable phase navigation and labelled checklist controls", async () => {
