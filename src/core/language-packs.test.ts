@@ -84,7 +84,7 @@ describe("artifact-driven toolchain profiles", () => {
   });
 
   it("keeps the capability inventory broader than the available artifact presets", () => {
-    const presetIds = new Set(ARTIFACT_PROFILES.flatMap((profile) => profile.capabilityIds));
+    const presetIds = new Set<string>(ARTIFACT_PROFILES.flatMap((profile) => profile.capabilityIds));
     expect(capabilityRegistry.some((item) => item.id === "python.conda")).toBe(true);
     expect(presetIds.has("python.conda")).toBe(false);
     expect(presetIds.has("java.maven")).toBe(false);
