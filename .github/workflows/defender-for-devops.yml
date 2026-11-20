@@ -42,9 +42,14 @@ jobs:
         dotnet-version: |
           5.0.x
           6.0.x
+    # CodeQL Advanced owns JavaScript/TypeScript source analysis. MSDO Checkov
+    # is retained here for GitHub Actions/IaC policy checks; its ESLint tool
+    # does not support this TypeScript-only source tree.
     - name: Run Microsoft Security DevOps
       uses: microsoft/security-devops-action@v1.6.0
       id: msdo
+      with:
+        tools: checkov
     - name: Upload results to Security tab
       uses: github/codeql-action/upload-sarif@v3
       with:
