@@ -542,7 +542,7 @@ export const phases: Phase[] = [
  */
 export function getPhasesForTarget(os: TargetOS): Phase[] {
   if (os === "windows") return phases;
-  const windowsOnlyCommand = /\\bwinget\\b|\\bsetx\\b|^clip\\s|[A-Za-z]:\\\\/i;
+  const windowsOnlyCommand = /\bwinget\b|\bsetx\b|^clip\s/i;
   return phases.map((phase) => ({
     ...phase,
     sections: phase.sections.map((section) => ({
