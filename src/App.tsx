@@ -88,10 +88,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100">
+    <div className="atlas-app min-h-screen bg-slate-950 text-slate-100">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
+      <header className="atlas-topbar sticky top-0 z-30 border-b border-slate-800/80 bg-slate-950/90 backdrop-blur">
+        <div className="atlas-topbar-inner mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
             <button
               className="rounded-lg border border-slate-800 p-2 text-slate-300 hover:bg-slate-900 lg:hidden"
@@ -107,9 +107,9 @@ export default function App() {
             </span>
             <div>
               <h1 className="text-sm font-semibold leading-tight text-white sm:text-base">
-                Dev Machine Setup Wizard
+                Atlas Workspace
               </h1>
-              <p className="text-[11px] text-slate-500 sm:text-xs">Declarative preview · Checklist phases 7–13</p>
+              <p className="text-[11px] text-slate-500 sm:text-xs">Local workspace · Setup checklist and plan preview</p>
             </div>
           </div>
 
@@ -157,11 +157,11 @@ export default function App() {
         </div>
       </header>
 
-      <div className="mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
+      <div className="atlas-layout mx-auto flex max-w-7xl gap-6 px-4 py-6 sm:px-6">
         {/* Sidebar */}
         <aside
           id="phase-navigation"
-          className={`${
+          className={`atlas-sidebar ${
             mobileNavOpen ? "block" : "hidden"
           } fixed inset-0 z-20 overflow-y-auto bg-slate-950 p-4 pt-4 lg:sticky lg:top-20 lg:block lg:h-[calc(100vh-6rem)] lg:w-72 lg:shrink-0 lg:bg-transparent lg:p-0`}
         >
@@ -189,8 +189,8 @@ export default function App() {
         </aside>
 
         {/* Main content */}
-        <main className="min-w-0 flex-1">
-          <section aria-labelledby="plan-heading" className="mb-6 rounded-2xl border border-indigo-900/70 bg-slate-900/70 p-5 sm:p-6">
+        <main className="atlas-main min-w-0 flex-1">
+          <section aria-labelledby="plan-heading" className="atlas-plan mb-6 rounded-2xl border border-indigo-900/70 bg-slate-900/70 p-5 sm:p-6">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
                 <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-indigo-300"><ShieldCheck size={14} /> Declarative plan preview</p>
@@ -274,7 +274,7 @@ export default function App() {
               <p className="mt-3 flex items-center gap-1.5 text-xs text-amber-300"><AlertTriangle size={13} /> No install execution or observed-machine verification exists in this frontend-only build.</p>
             </div>}
           </section>
-          <div className={`rounded-2xl border border-slate-800 bg-gradient-to-br ${activePhase.color} p-[1px]`}>
+          <div className={`atlas-phase-header rounded-2xl border border-slate-800 bg-gradient-to-br ${activePhase.color} p-[1px]`}>
             <div className="rounded-2xl bg-slate-950/95 p-5 sm:p-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
@@ -344,7 +344,7 @@ export default function App() {
         </main>
       </div>
 
-      <footer className="border-t border-slate-800/80 py-6 text-center text-xs text-slate-600">
+      <footer className="atlas-footer border-t border-slate-800/80 py-6 text-center text-xs text-slate-600">
 Checklist progress is saved in this browser only. Checking an item does not detect, install, or verify software.
       </footer>
     </div>
