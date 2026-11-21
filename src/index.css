@@ -1,1 +1,159 @@
 @import "tailwindcss";
+
+/* Atlas workspace visual system — local assets only, no runtime CDN dependencies. */
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  --atlas-bg: #080d18;
+  --atlas-surface: rgba(17, 26, 43, .82);
+  --atlas-surface-raised: #151f32;
+  --atlas-border: rgba(130, 153, 190, .16);
+  --atlas-border-strong: rgba(130, 153, 190, .28);
+  --atlas-text: #edf3ff;
+  --atlas-muted: #91a1ba;
+  --atlas-accent: #829bff;
+  --atlas-cyan: #62d4df;
+}
+* { box-sizing: border-box; }
+html { min-width: 320px; background: var(--atlas-bg); scroll-behavior: smooth; }
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  color: var(--atlas-text);
+  background:
+    radial-gradient(ellipse at 76% -12%, rgba(69, 91, 176, .23), transparent 38rem),
+    radial-gradient(ellipse at 4% 38%, rgba(29, 115, 137, .09), transparent 32rem),
+    var(--atlas-bg);
+}
+button, input, select, textarea { font: inherit; }
+button { -webkit-tap-highlight-color: transparent; }
+::selection { color: #fff; background: rgba(105, 132, 255, .45); }
+:focus-visible { outline-color: #9aabff; }
+
+.atlas-app { min-height: 100vh; isolation: isolate; }
+.atlas-topbar {
+  border-color: var(--atlas-border) !important;
+  background: rgba(8, 13, 24, .78) !important;
+  box-shadow: 0 1px 0 rgba(255,255,255,.025);
+  backdrop-filter: blur(22px) saturate(145%);
+}
+.atlas-topbar-inner { max-width: 1500px; min-height: 70px; }
+.atlas-topbar-inner h1 { letter-spacing: -.025em; }
+.atlas-topbar-inner > div:first-child > span {
+  width: 42px; height: 42px; border: 1px solid rgba(177, 191, 255, .28);
+  box-shadow: 0 8px 26px rgba(72, 91, 190, .24), inset 0 1px rgba(255,255,255,.22);
+}
+.atlas-layout { max-width: 1500px; align-items: flex-start; gap: 24px; padding-top: 28px; padding-bottom: 34px; }
+.atlas-sidebar {
+  width: 264px; flex: 0 0 264px; position: sticky; top: 92px;
+  max-height: calc(100vh - 112px); overflow-y: auto; scrollbar-width: thin;
+  scrollbar-color: rgba(130,153,190,.25) transparent;
+  border: 1px solid var(--atlas-border);
+  border-radius: 18px;
+  padding: 15px;
+  background: linear-gradient(160deg, rgba(20,31,51,.9), rgba(12,20,35,.88));
+  box-shadow: 0 18px 55px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.035);
+}
+.atlas-nav-heading { display: flex; flex-direction: column; gap: 4px; padding: 8px 10px 14px; }
+.atlas-nav-heading p { margin: 0; color: #7e91b4; font-size: 9px; font-weight: 800; letter-spacing: .18em; }
+.atlas-nav-heading span { color: #e8efff; font-size: 14px; font-weight: 650; letter-spacing: -.01em; }
+.atlas-phase-nav ul { display: grid; gap: 5px; }
+.atlas-phase-link {
+  border-color: transparent !important; border-radius: 11px !important;
+  padding: 11px 10px !important; background: transparent !important;
+  color: #9cabc3 !important;
+}
+.atlas-phase-link:hover { background: rgba(119,145,205,.09) !important; color: #eaf0ff !important; }
+.atlas-phase-link[aria-current="step"] {
+  border-color: rgba(128,153,255,.27) !important;
+  background: linear-gradient(105deg, rgba(76,101,177,.25), rgba(54,73,119,.12)) !important;
+  color: #f5f7ff !important;
+  box-shadow: inset 2px 0 #91a6ff, 0 7px 20px rgba(0,0,0,.12);
+}
+.atlas-phase-link > span:first-child { gap: 9px; }
+.atlas-phase-link > span:first-child > span:first-of-type { font-size: 12px; letter-spacing: -.01em; }
+.atlas-phase-link > span:first-child > svg { color: #8fa6e7; }
+.atlas-phase-link > span[aria-hidden="true"] { height: 3px !important; margin-top: 9px !important; background: rgba(122,143,177,.14) !important; }
+.atlas-phase-link > span[aria-hidden="true"] > span { border-radius: 99px; }
+.atlas-sidebar > div {
+  border-color: var(--atlas-border) !important; border-radius: 13px !important;
+  background: rgba(8,14,26,.55) !important;
+}
+.atlas-sidebar a { transition: color .18s ease; }
+.atlas-main { min-width: 0; }
+.atlas-plan {
+  border-color: rgba(126,148,229,.25) !important;
+  border-radius: 20px !important;
+  background:
+    radial-gradient(ellipse at 100% 0%, rgba(91,111,205,.13), transparent 48%),
+    linear-gradient(145deg, rgba(19,29,49,.96), rgba(12,19,33,.94)) !important;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2), inset 0 1px rgba(255,255,255,.045);
+}
+.atlas-plan h2 { letter-spacing: -.035em; }
+.atlas-plan select {
+  min-height: 42px; border-color: var(--atlas-border-strong) !important;
+  border-radius: 10px !important; background-color: rgba(7,13,24,.78) !important;
+}
+.atlas-plan button { transition: transform .16s ease, border-color .16s ease, background-color .16s ease; }
+.atlas-plan button:hover:not(:disabled) { transform: translateY(-1px); }
+.atlas-plan details { border-color: var(--atlas-border) !important; background: rgba(7,13,24,.4) !important; }
+.atlas-plan details label:hover { background: rgba(125,147,202,.08) !important; }
+.atlas-phase-header {
+  border-color: rgba(129,151,226,.2) !important;
+  border-radius: 19px !important;
+  background-image: linear-gradient(135deg, rgba(24,37,62,.98), rgba(13,21,37,.98)) !important;
+  box-shadow: 0 15px 44px rgba(0,0,0,.18), inset 0 1px rgba(255,255,255,.04);
+}
+.atlas-phase-header > div { border-radius: 18px !important; background: transparent !important; }
+.atlas-phase-header h2 { letter-spacing: -.04em; }
+.atlas-checklist-row {
+  border-color: var(--atlas-border) !important;
+  border-radius: 14px !important;
+  background: linear-gradient(125deg, rgba(19,29,47,.78), rgba(12,20,34,.76)) !important;
+  box-shadow: inset 0 1px rgba(255,255,255,.025);
+}
+.atlas-checklist-row:hover {
+  border-color: rgba(128,151,219,.32) !important;
+  background: linear-gradient(125deg, rgba(24,37,60,.88), rgba(13,22,38,.86)) !important;
+}
+.atlas-checklist-row input { accent-color: #819bff; }
+.atlas-checklist-row pre {
+  border-color: rgba(128,151,190,.16) !important;
+  background: rgba(4,9,18,.72) !important;
+}
+.atlas-main section h3 { letter-spacing: -.01em; }
+.atlas-main button:focus-visible, .atlas-sidebar button:focus-visible, .atlas-plan summary:focus-visible {
+  outline: 2px solid #9aabff; outline-offset: 3px;
+}
+.atlas-footer { border-color: var(--atlas-border) !important; color: #71819b !important; }
+
+@media (min-width: 1024px) {
+  .atlas-sidebar { display: block !important; }
+}
+@media (max-width: 1023px) {
+  .atlas-layout { display: block; padding-top: 18px; }
+  .atlas-sidebar {
+    position: fixed; inset: 0 auto 0 0; z-index: 40;
+    width: min(86vw, 320px); max-height: 100dvh; height: 100dvh;
+    border-radius: 0 18px 18px 0; padding: 22px 16px;
+    background: rgba(12,20,35,.98); box-shadow: 24px 0 80px rgba(0,0,0,.55);
+  }
+  .atlas-main { width: 100%; }
+}
+@media (max-width: 640px) {
+  .atlas-topbar-inner { min-height: 62px; }
+  .atlas-topbar-inner > div:first-child > span { width: 38px; height: 38px; }
+  .atlas-layout { padding-left: 14px; padding-right: 14px; }
+  .atlas-plan { padding: 16px !important; border-radius: 16px !important; }
+  .atlas-plan h2 { font-size: 1.1rem; line-height: 1.35; }
+  .atlas-phase-header { border-radius: 16px !important; }
+  .atlas-phase-header > div { padding: 16px !important; }
+  .atlas-phase-header h2 { font-size: 1.45rem !important; }
+  .atlas-checklist-row { padding: 13px !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
