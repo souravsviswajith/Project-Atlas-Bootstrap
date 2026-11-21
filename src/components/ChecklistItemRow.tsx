@@ -13,7 +13,7 @@ export default function ChecklistItemRow({ item, checked, onToggle }: ChecklistI
 
   return (
     <li
-      className={`flex gap-3 rounded-xl border p-4 transition ${
+      className={`atlas-checklist-row flex gap-3 rounded-xl border p-4 transition ${
         checked ? "border-slate-800/60 bg-slate-900/20" : "border-slate-800 bg-slate-900/40"
       }`}
     >
