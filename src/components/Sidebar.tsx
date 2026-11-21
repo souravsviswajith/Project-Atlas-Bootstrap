@@ -33,10 +33,8 @@ export interface SidebarProps {
 
 export default function Sidebar({ phases, activeId, onSelect, progressFor }: SidebarProps) {
   return (
-    <nav aria-label="Setup phases">
-      <p className="mb-3 px-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-        Phases
-      </p>
+    <nav className="atlas-phase-nav" aria-label="Setup phases">
+      <div className="atlas-nav-heading"><p>WORKSPACE</p><span>Setup workflow</span></div>
       <ul className="space-y-1">
         {phases.map((phase) => {
           const { done, total } = progressFor(phase);
@@ -52,7 +50,7 @@ export default function Sidebar({ phases, activeId, onSelect, progressFor }: Sid
                 onClick={() => onSelect(phase.id)}
                 aria-current={isActive ? "step" : undefined}
                 title={phase.tagline}
-                className={`w-full rounded-lg border px-3 py-2.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400 ${
+                className={`atlas-phase-link w-full rounded-lg border px-3 py-2.5 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-400 ${
                   isActive
                     ? "border-slate-700 bg-slate-900 text-white"
                     : "border-transparent text-slate-400 hover:bg-slate-900/60 hover:text-slate-200"
